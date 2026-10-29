@@ -1,4 +1,4 @@
-# Search engines may index the application; AI crawlers may not (as on rntm.de).
+# Search engines may crawl, so they can read the noindex every page carries; AI crawlers may not (as on rntm.de).
 User-agent: GPTBot
 User-agent: ChatGPT-User
 User-agent: OAI-SearchBot

@@ -12,7 +12,7 @@ echo "· headers on /"
 for _ in 1 2 3 4 5 6; do [ "$(code "$base/")" = 200 ] && break; sleep 5; done
 h=$(hdr "$base/")
 printf '%s' "$h" | grep -qi '^HTTP/[0-9.]* 200' || fail "/ did not answer 200"
-for name in "content-security-policy: .*style-src 'self' 'sha256-" "strict-transport-security" "x-content-type-options: nosniff" "referrer-policy: no-referrer" "permissions-policy" "x-frame-options: deny"; do
+for name in "content-security-policy: .*style-src 'self' 'sha256-" "strict-transport-security" "x-content-type-options: nosniff" "referrer-policy: no-referrer" "permissions-policy" "x-frame-options: deny" "x-robots-tag: noindex"; do
   printf '%s' "$h" | grep -qi "^$name" || fail "missing header: $name"
 done
 printf '%s' "$h" | grep -qi "unsafe-inline" && fail "the CSP allows unsafe-inline"

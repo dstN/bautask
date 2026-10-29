@@ -19,6 +19,8 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <!-- an application, not a page to be found: kept out of search results (also X-Robots-Tag in .htaccess) -->
+    <meta name="robots" content="noindex" />
     <meta name="theme-color" content="#c9cec6" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />

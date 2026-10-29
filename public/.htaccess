@@ -28,6 +28,8 @@ AddType image/svg+xml .svg
   Header always set Cross-Origin-Opener-Policy "same-origin"
   Header always set Cross-Origin-Resource-Policy "same-origin"
   Header always set X-Frame-Options "DENY"
+  # An application, not a page to be found. robots.txt still allows crawling, so search engines can read this.
+  Header always set X-Robots-Tag "noindex"
 
   <If "%{REQUEST_URI} =~ m#^/_astro/#">
     Header set Cache-Control "public, max-age=31536000, immutable"

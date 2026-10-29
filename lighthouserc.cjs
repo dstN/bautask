@@ -11,6 +11,9 @@ module.exports = {
       maxAutodiscoverUrls: 0,
       settings: {
         chromeFlags: process.getuid && process.getuid() === 0 ? ['--no-sandbox'] : [],
+        // Every page says noindex on purpose (an application, not a page to be found), which this one audit counts
+        // against SEO. It is left out; every other SEO audit still has to pass for the 100.
+        skipAudits: ['is-crawlable'],
       },
     },
     assert: {
