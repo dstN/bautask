@@ -1,0 +1,75 @@
+---
+// After rntm.de/src/pages/datenschutz.astro, without contact form and relay: this page has none. Must match
+// src/config/legal.ts and the Plesk settings of bautask.yinside.de. Technically worded, not legal advice.
+import { legal } from '../config/legal';
+import { person } from '../data/bewerbung';
+import Seite from '../layouts/Seite.astro';
+
+const stand = new Intl.DateTimeFormat('de-DE', { dateStyle: 'long', timeZone: 'Europe/Berlin' }).format(new Date(`${legal.lastUpdated}T12:00:00Z`));
+---
+
+<Seite title="Datenschutz · Bewerbung Dustin Tramm" description="Was diese Seite verarbeitet: Zugriffsprotokolle des Webservers, sonst nichts.">
+  <article class="blatt blatt--lesen" aria-labelledby="titel">
+    <h1 id="titel" class="formtitel">Datenschutz</h1>
+    <p class="lesen__lead">
+      Diese Seite setzt keine Cookies, speichert nichts in deinem Browser und lädt nichts von anderen Servern. Was der Webserver trotzdem mitschreibt, steht hier.
+    </p>
+
+    <h2 class="abschnitt">Verantwortlich</h2>
+    <address>
+      {legal.name}<br />
+      {legal.careOf}<br />
+      {legal.street}<br />
+      {legal.city}<br />
+      {legal.country}
+    </address>
+    <p>E-Mail: <a href={`mailto:${legal.email}`}>{legal.email}</a></p>
+
+    <h2 class="abschnitt">Hosting</h2>
+    <p>
+      Diese Seite und mein Postfach {legal.email} liegen bei der {legal.host.name}, {legal.host.address}. netcup verarbeitet die Daten in meinem Auftrag; mit netcup besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO. Die Server stehen in Deutschland. Eine Übermittlung in Drittländer findet nicht statt.
+    </p>
+
+    <h2 class="abschnitt">Zugriffsprotokolle</h2>
+    <p>
+      Bei jedem Abruf speichert der Webserver automatisch: IP-Adresse, Zeitpunkt, aufgerufene Adresse, übertragene Datenmenge, Statuscode und den verwendeten Browser (User-Agent). Eine zuvor besuchte Seite (Referrer) übermittelt dein Browser hier nicht, weil diese Seite das abschaltet.
+    </p>
+    <p>
+      Zweck ist der sichere Betrieb des Servers und die Fehlersuche. Rechtsgrundlage ist mein berechtigtes Interesse an einem stabilen, sicheren Angebot (Art. 6 Abs. 1 lit. f DSGVO). Ohne diese Angaben lässt sich die Seite nicht ausliefern.
+    </p>
+    <p>
+      {
+        legal.logRetentionDays === null
+          ? 'Speicherdauer: wird vor der Veröffentlichung aus den Servereinstellungen übernommen.'
+          : `Speicherdauer: höchstens ${legal.logRetentionDays} Tage. Danach werden die Protokolle automatisch gelöscht.`
+      }
+      Ich setze keine Webanalyse-Software ein; die im Hosting enthaltene Statistik ist abgeschaltet. Die Protokolle schreibt der Server trotzdem, die Statistik würde sie nur auswerten.
+    </p>
+
+    <h2 class="abschnitt">Cookies, Speicher im Browser, Inhalte Dritter</h2>
+    <p>
+      Keine Cookies, kein lokaler Speicher, keine Inhalte Dritter. Was du in den Stundenzettel tippst, rechnet dein Browser selbst; es wird nirgends hingeschickt und ist weg, sobald du die Seite schließt. Schriften und Skripte kommen von diesem Server.
+    </p>
+
+    <h2 class="abschnitt">E-Mail</h2>
+    <p>
+      Schreibst du mir, verarbeite ich deine Adresse und deine Nachricht, um zu antworten. Geht es um diese Bewerbung, ist die Rechtsgrundlage Art. 6 Abs. 1 lit. b DSGVO (Schritte vor einem Vertrag), sonst Art. 6 Abs. 1 lit. f DSGVO. Ich lösche die Nachricht, sobald sie erledigt ist und keine gesetzliche Pflicht entgegensteht.
+    </p>
+
+    <h2 class="abschnitt">Links</h2>
+    <p>
+      Die Seite verlinkt mein Profil und den Quelltext bei GitHub, mein Portfolio unter {person.portfolio.label} (GitHub Pages) und meine eigenen Projekte, die eigene Datenschutzerklärungen haben. Von dort wird nichts geladen. Erst wenn du einem Link folgst, verarbeitet der jeweilige Anbieter deine Daten nach seinen Regeln.
+    </p>
+
+    <h2 class="abschnitt">Deine Rechte</h2>
+    <p>
+      Du hast das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) und Datenübertragbarkeit (Art. 20). Schreib dazu an die oben genannte Adresse. Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO).
+    </p>
+    <p>
+      Verarbeite ich Daten auf Grundlage meines berechtigten Interesses, kannst du dem aus Gründen, die sich aus deiner besonderen Situation ergeben, jederzeit widersprechen (Art. 21 Abs. 1 DSGVO). Eine formlose E-Mail genügt.
+    </p>
+
+    <p class="druck lesen__stand">Stand: {stand}</p>
+    <p><a href="/">Zurück zur Abrechnung</a></p>
+  </article>
+</Seite>

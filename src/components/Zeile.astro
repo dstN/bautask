@@ -1,0 +1,91 @@
+---
+// One line of the timesheet: the fields as typed and the figures the engine prints. Rendered on the server for the
+// first example and once, empty, inside a <template> the script clones; src/scripts/abrechnung.ts fills the
+// [data-aus] slots, so this file is the only place the markup of a line lives.
+import { type Ergebnis, type Schicht, stunden } from '../core/abrechnung';
+
+interface Props {
+  nr: number;
+  schicht?: Schicht | undefined;
+  ergebnis?: Ergebnis | undefined;
+}
+
+const { nr, schicht, ergebnis } = Astro.props;
+const z = ergebnis?.ok ? ergebnis.zeile : undefined;
+const fehler = ergebnis && !ergebnis.ok ? ergebnis.fehler : [];
+const pos = String(nr).padStart(2, '0');
+const id = `z${nr}`;
+const felder = [
+  { name: 'datum', etikett: 'Datum', wert: schicht?.datum ?? '', breite: 10 },
+  { name: 'kommen', etikett: 'Kommen', wert: schicht?.kommen ?? '', breite: 5 },
+  { name: 'gehen', etikett: 'Gehen', wert: schicht?.gehen ?? '', breite: 5 },
+  { name: 'pause', etikett: 'Pause', wert: schicht?.pause ?? '', breite: 3 },
+] as const;
+---
+
+<li class="zeile" data-zeile>
+  <span class="zeile__pos druck" data-aus="pos" aria-hidden="true">{pos}</span>
+  {
+    felder.map((f) => (
+      <label class={`zeile__feld zeile__feld--${f.name}`}>
+        <span class="etikett">
+          {f.etikett}
+          <span class="vh" data-aus="zeile-nr">, Zeile {nr}</span>
+          {f.name === 'pause' && <span class="vh">, in Minuten</span>}
+        </span>
+        <input
+          class="eingabe druck"
+          name={f.name}
+          value={f.wert}
+          size={f.breite}
+          maxlength={f.breite}
+          inputmode="numeric"
+          autocomplete="off"
+          spellcheck="false"
+          aria-invalid={fehler.some((e) => e.feld === f.name) ? 'true' : undefined}
+          aria-describedby={`${id}-fehler`}
+        />
+        {(f.name === 'kommen' || f.name === 'gehen') && (
+          <select
+            class="faltung druck"
+            name={`${f.name}Faltung`}
+            hidden={!z?.mehrdeutig[f.name]}
+            aria-label={`Welches ${f.etikett}: Sommerzeit (MESZ) oder Winterzeit (MEZ)?`}
+          >
+            <option value="0">MESZ</option>
+            <option value="1">MEZ</option>
+          </select>
+        )}
+      </label>
+    ))
+  }
+  <button class="zeile__werte" type="button" aria-expanded="false" aria-controls={`${id}-herleitung`} data-werte>
+    <span class="wert wert--dauer">
+      <span class="etikett">Dauer</span>
+      <s class="naiv druck" data-aus="naiv" hidden={!z || z.dauer === z.dauerWanduhr}>
+        <span class="vh">nicht </span><span data-aus="naiv-zahl">{z ? stunden(z.dauerWanduhr) : ''}</span>
+      </s>
+      <span class="druck" data-aus="dauer">{z ? stunden(z.dauer) : '–'}</span>
+    </span>
+    <span class="wert"><span class="etikett">Arbeit</span><span class="druck doppelt" data-aus="arbeit">{z ? stunden(z.arbeit) : '–'}</span></span>
+    <span class="wert"><span class="etikett">Nacht</span><span class="druck" data-aus="nacht">{z ? stunden(z.nacht) : '–'}</span></span>
+    <span class="wert"><span class="etikett">Sonntag</span><span class="druck" data-aus="sonntag">{z ? stunden(z.sonntag) : '–'}</span></span>
+    <span class="zeile__mehr">Herleitung</span>
+  </button>
+  <button class="zeile__storno textknopf" type="button" data-storno>Stornieren<span class="vh" data-aus="zeile-nr">, Zeile {nr}</span></button>
+  <p class="zeile__fehler druck" id={`${id}-fehler`} data-aus="fehler" role="status">{fehler.map((e) => e.text).join(' ')}</p>
+  <ul class="befunde" data-aus="befunde">
+    {
+      z?.befunde.map((b) => (
+        <li class={`befund befund--${b.art}`}>
+          <span class="befund__art druck">{b.art === 'verstoss' ? 'VERSTOSS' : b.art === 'entscheidung' ? 'ENTSCHEIDUNG' : 'HINWEIS'}</span>
+          <span class="befund__regel druck">{b.regel}</span>
+          <span class="befund__text druck">{b.text}</span>
+        </li>
+      ))
+    }
+  </ul>
+  <ol class="herleitung druck" id={`${id}-herleitung`} data-aus="herleitung" hidden>
+    {z?.herleitung.map((h) => <li>{h}</li>)}
+  </ol>
+</li>

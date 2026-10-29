@@ -1,0 +1,379 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-29T13:31:11.976Z",
+  "title": "Design System: Abrechnung der Arbeitszeit",
+  "extensions": {
+    "colorMeta": {
+      "papier": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "canonical": "oklch(98.7% 0.005 106)",
+        "tonalRamp": [
+          "#0b0b09",
+          "#242421",
+          "#40403d",
+          "#5e5e5a",
+          "#80807d",
+          "#a5a5a1",
+          "#cbcbc7",
+          "#efefeb"
+        ]
+      },
+      "umgebung": {
+        "role": "neutral",
+        "displayName": "Desk Grey-Green",
+        "canonical": "oklch(84.5% 0.012 133)",
+        "tonalRamp": [
+          "#090c07",
+          "#22251f",
+          "#3d413b",
+          "#5b5f58",
+          "#7d827b",
+          "#a2a69f",
+          "#c7ccc4",
+          "#ebf0e8"
+        ]
+      },
+      "umgebung-tief": {
+        "role": "neutral",
+        "displayName": "Desk Shadow",
+        "canonical": "oklch(74.9% 0.016 136)",
+        "tonalRamp": [
+          "#080d06",
+          "#21261e",
+          "#3c4239",
+          "#5a6057",
+          "#7c8379",
+          "#a0a79d",
+          "#c6cdc3",
+          "#eaf1e7"
+        ]
+      },
+      "vordruck": {
+        "role": "primary",
+        "displayName": "Form Green",
+        "canonical": "oklch(40.8% 0.072 164)",
+        "tonalRamp": [
+          "#001304",
+          "#002e1b",
+          "#0d4b36",
+          "#316a53",
+          "#558e75",
+          "#79b399",
+          "#9fdabf",
+          "#c2fee3"
+        ]
+      },
+      "vordruck-tief": {
+        "role": "primary",
+        "displayName": "Deep Form Green",
+        "canonical": "oklch(33.5% 0.058 165)",
+        "tonalRamp": [
+          "#001205",
+          "#002d1d",
+          "#1d4938",
+          "#3c6855",
+          "#5e8c78",
+          "#82b19c",
+          "#a8d7c1",
+          "#cbfce5"
+        ]
+      },
+      "vordruck-linie": {
+        "role": "neutral",
+        "displayName": "Pre-print Hairline",
+        "canonical": "oklch(76.7% 0.041 161)",
+        "tonalRamp": [
+          "#001006",
+          "#0f2a1d",
+          "#2b4739",
+          "#496556",
+          "#6b8878",
+          "#8ead9c",
+          "#b4d3c2",
+          "#d7f8e6"
+        ]
+      },
+      "vordruck-flaeche": {
+        "role": "neutral",
+        "displayName": "Pre-print Tint",
+        "canonical": "oklch(94.9% 0.018 134)",
+        "tonalRamp": [
+          "#080d06",
+          "#20261d",
+          "#3c4238",
+          "#596056",
+          "#7c8378",
+          "#a0a79c",
+          "#c6cdc2",
+          "#e9f1e5"
+        ]
+      },
+      "gruenband": {
+        "role": "neutral",
+        "displayName": "Green Bar",
+        "canonical": "oklch(94.4% 0.021 136)",
+        "tonalRamp": [
+          "#070d05",
+          "#1f271c",
+          "#3b4337",
+          "#586155",
+          "#7a8377",
+          "#9fa89b",
+          "#c4cec0",
+          "#e8f2e4"
+        ]
+      },
+      "farbband": {
+        "role": "neutral",
+        "displayName": "Ribbon Black",
+        "canonical": "oklch(20.4% 0.002 106)",
+        "tonalRamp": [
+          "#0b0b0a",
+          "#242423",
+          "#40403f",
+          "#5e5e5c",
+          "#80807f",
+          "#a5a5a3",
+          "#cacac9",
+          "#eeeeed"
+        ]
+      },
+      "rot": {
+        "role": "secondary",
+        "displayName": "Ribbon Red",
+        "canonical": "oklch(44.4% 0.164 29)",
+        "tonalRamp": [
+          "#240000",
+          "#480704",
+          "#6e231b",
+          "#963e33",
+          "#bf6053",
+          "#e1897c",
+          "#ffb3a7",
+          "#ffdbcf"
+        ]
+      },
+      "perforation": {
+        "role": "neutral",
+        "displayName": "Perforation Grey",
+        "canonical": "oklch(73.2% 0.018 137)",
+        "tonalRamp": [
+          "#080d06",
+          "#20261e",
+          "#3b4239",
+          "#596056",
+          "#7b8378",
+          "#9fa79c",
+          "#c5cdc2",
+          "#e9f2e6"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Form Title",
+        "purpose": "The pre-printed form title, once per page."
+      },
+      "headline": {
+        "displayName": "Section",
+        "purpose": "Section names under a 2px form-green rule."
+      },
+      "title": {
+        "displayName": "Lead",
+        "purpose": "The lead sentence under the form title."
+      },
+      "body": {
+        "displayName": "Typed Text",
+        "purpose": "Prose, the letter on ruled lines, notes."
+      },
+      "label": {
+        "displayName": "Field Name",
+        "purpose": "Pre-print labels, column heads, cut line, text buttons."
+      },
+      "print": {
+        "displayName": "Dot-Matrix Print (--druckgrad)",
+        "purpose": "Everything the printer prints, at one size; rank by capitals, double strike, red."
+      }
+    },
+    "shadows": [
+      {
+        "name": "sheet-on-desk",
+        "value": "0 1px 2px rgb(20 32 24 / 0.14), 0 18px 40px -12px rgb(20 32 24 / 0.28)",
+        "purpose": "The continuous sheet above the desk; nothing on the paper casts a shadow."
+      },
+      {
+        "name": "fanfold-crease",
+        "value": "linear-gradient(to bottom, rgb(40 55 40 / 0.09), transparent)",
+        "purpose": "Crease under the 1.5px dashed fanfold perforation between sheets."
+      },
+      {
+        "name": "double-strike",
+        "value": "text-shadow: 0.05em 0 0 currentColor",
+        "purpose": "Printed emphasis; struck twice by the print head."
+      }
+    ],
+    "motion": [
+      {
+        "name": "print-head",
+        "value": "clip-path inset(0 100% 0 0) to inset(0), 380ms steps(19, end), backwards",
+        "purpose": "Printed text reveals left to right once on load and on reprint; only under prefers-reduced-motion: no-preference."
+      },
+      {
+        "name": "print-head-stagger",
+        "value": "70ms per field; line figures 460ms; findings from 620ms in 100ms steps, capped at 920ms",
+        "purpose": "Order of the first print."
+      },
+      {
+        "name": "ease-state",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Button hover (160ms) and derivation chevron (200ms)."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow-text",
+        "value": "22rem"
+      },
+      {
+        "name": "phone",
+        "value": "30rem"
+      },
+      {
+        "name": "stack-line",
+        "value": "56rem"
+      },
+      {
+        "name": "stack-head",
+        "value": "64rem"
+      },
+      {
+        "name": "sheet-max",
+        "value": "82rem"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single solid action, one per reply slip.",
+      "html": "<a class=\"ds-knopf\" href=\"#\">Schreibt mir</a>",
+      "css": ":host{--papier:#fbfbf7;--vordruck:#1b5640;--vordruck-tief:#12402f;--vordruck-linie:#9dbcab;--vordruck-flaeche:#e9f1e5;--gruenband:#e6f0e2;--farbband:#171716;--rot:#9a1a12;--perforation:#a3aba0;--druck:\"Doto\",ui-monospace,\"Cascadia Mono\",monospace;--form:\"Fira Sans\",system-ui,sans-serif;--form-schmal:\"Fira Sans Condensed\",\"Fira Sans\",system-ui,sans-serif;--druckgrad:1.0625rem;--druckzeile:1.5rem} .ds-knopf{display:block;padding:0.875rem 1.25rem;border-radius:2px;background:var(--vordruck);color:var(--papier);font:700 1.25rem/1.2 var(--form-schmal);text-align:center;text-decoration:none;transition:background-color 160ms cubic-bezier(0.16,1,0.3,1)}.ds-knopf:hover{background:var(--vordruck-tief)}.ds-knopf:active{transform:translateY(1px)}.ds-knopf:focus-visible{outline:3px solid var(--farbband);outline-offset:3px}"
+    },
+    {
+      "name": "Text Button",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Pre-print action: add line, cancel line.",
+      "html": "<button class=\"ds-textknopf\" type=\"button\">Zeile hinzufügen</button>",
+      "css": ":host{--papier:#fbfbf7;--vordruck:#1b5640;--vordruck-tief:#12402f;--vordruck-linie:#9dbcab;--vordruck-flaeche:#e9f1e5;--gruenband:#e6f0e2;--farbband:#171716;--rot:#9a1a12;--perforation:#a3aba0;--druck:\"Doto\",ui-monospace,\"Cascadia Mono\",monospace;--form:\"Fira Sans\",system-ui,sans-serif;--form-schmal:\"Fira Sans Condensed\",\"Fira Sans\",system-ui,sans-serif;--druckgrad:1.0625rem;--druckzeile:1.5rem} .ds-textknopf{padding:0.25rem 0;border:0;background:none;color:var(--vordruck);font:500 0.8125rem/1.3 var(--form-schmal);letter-spacing:0.05em;text-transform:uppercase;line-height:1.5rem;text-decoration:underline 1px;text-underline-offset:0.25em;cursor:pointer}.ds-textknopf:hover{color:var(--vordruck-tief);text-decoration-thickness:2px}.ds-textknopf:focus-visible{outline:3px solid var(--vordruck);outline-offset:3px}"
+    },
+    {
+      "name": "Printed Input",
+      "kind": "input",
+      "refersTo": "input-print",
+      "description": "Shift field: printed value on a dotted pre-print underline; red when invalid.",
+      "html": "<label class=\"ds-feld\"><span class=\"ds-etikett\">Kommen</span><input class=\"ds-eingabe\" value=\"22:00\" size=\"5\"></label> <label class=\"ds-feld\"><span class=\"ds-etikett\">Gehen</span><input class=\"ds-eingabe\" value=\"26:00\" size=\"5\" aria-invalid=\"true\"></label>",
+      "css": ":host{--papier:#fbfbf7;--vordruck:#1b5640;--vordruck-tief:#12402f;--vordruck-linie:#9dbcab;--vordruck-flaeche:#e9f1e5;--gruenband:#e6f0e2;--farbband:#171716;--rot:#9a1a12;--perforation:#a3aba0;--druck:\"Doto\",ui-monospace,\"Cascadia Mono\",monospace;--form:\"Fira Sans\",system-ui,sans-serif;--form-schmal:\"Fira Sans Condensed\",\"Fira Sans\",system-ui,sans-serif;--druckgrad:1.0625rem;--druckzeile:1.5rem} .ds-feld{display:inline-grid;gap:0.25rem;background:var(--papier);padding:0.5rem}.ds-etikett{color:var(--vordruck);font:500 0.8125rem/1.3 var(--form-schmal);letter-spacing:0.05em;text-transform:uppercase;}.ds-eingabe{font-family:var(--druck);font-size:var(--druckgrad);font-weight:900;line-height:var(--druckzeile);font-variant-ligatures:none;width:7ch;padding:0.125rem 0.25rem;border:0;border-bottom:1.5px dotted var(--vordruck);border-radius:0;background:transparent;color:var(--farbband);caret-color:var(--rot)}.ds-eingabe:hover{background:var(--vordruck-flaeche)}.ds-eingabe:focus-visible{outline:3px solid var(--vordruck);outline-offset:2px;background:var(--vordruck-flaeche)}.ds-eingabe[aria-invalid=true]{border-bottom:2px solid var(--rot);color:var(--rot)}"
+    },
+    {
+      "name": "Tick Box",
+      "kind": "custom",
+      "refersTo": "tick-box",
+      "description": "Pre-printed box; the printer strikes the X.",
+      "html": "<label class=\"ds-ankreuz\"><input type=\"radio\" name=\"ds-v\" checked><span class=\"ds-kasten\"></span><span>Nacht der Zeitumstellung</span></label><label class=\"ds-ankreuz\"><input type=\"radio\" name=\"ds-v\"><span class=\"ds-kasten\"></span><span>Woche auf der Baustelle</span></label>",
+      "css": ":host{--papier:#fbfbf7;--vordruck:#1b5640;--vordruck-tief:#12402f;--vordruck-linie:#9dbcab;--vordruck-flaeche:#e9f1e5;--gruenband:#e6f0e2;--farbband:#171716;--rot:#9a1a12;--perforation:#a3aba0;--druck:\"Doto\",ui-monospace,\"Cascadia Mono\",monospace;--form:\"Fira Sans\",system-ui,sans-serif;--form-schmal:\"Fira Sans Condensed\",\"Fira Sans\",system-ui,sans-serif;--druckgrad:1.0625rem;--druckzeile:1.5rem} .ds-ankreuz{position:relative;display:inline-flex;align-items:center;gap:0.625rem;min-height:2.75rem;margin-right:1.5rem;font:500 1.0625rem/1.2 var(--form-schmal);color:var(--farbband);cursor:pointer}.ds-ankreuz input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}.ds-kasten{display:grid;place-items:center;width:1.5rem;height:1.5rem;border:1.5px solid var(--vordruck);background:var(--papier);font-family:var(--druck);font-size:var(--druckgrad);font-weight:900;line-height:var(--druckzeile);font-variant-ligatures:none;}.ds-ankreuz input:checked+.ds-kasten::after{content:\"X\";color:var(--farbband)}.ds-ankreuz:hover .ds-kasten{background:var(--vordruck-flaeche)}.ds-ankreuz input:focus-visible+.ds-kasten{outline:3px solid var(--vordruck);outline-offset:2px}"
+    },
+    {
+      "name": "Form Field Grid",
+      "kind": "card",
+      "refersTo": "form-field",
+      "description": "Labelled pre-print boxes sharing 1px rules.",
+      "html": "<dl class=\"ds-felder\"><div class=\"ds-f\"><dt>Name, Vorname</dt><dd>Tramm, Dustin</dd></div><div class=\"ds-f ds-breit\"><dt>Empfänger</dt><dd>BauTask DEV GmbH, Hamburg</dd></div><div class=\"ds-f\"><dt>Wochenstunden</dt><dd>25</dd></div></dl>",
+      "css": ":host{--papier:#fbfbf7;--vordruck:#1b5640;--vordruck-tief:#12402f;--vordruck-linie:#9dbcab;--vordruck-flaeche:#e9f1e5;--gruenband:#e6f0e2;--farbband:#171716;--rot:#9a1a12;--perforation:#a3aba0;--druck:\"Doto\",ui-monospace,\"Cascadia Mono\",monospace;--form:\"Fira Sans\",system-ui,sans-serif;--form-schmal:\"Fira Sans Condensed\",\"Fira Sans\",system-ui,sans-serif;--druckgrad:1.0625rem;--druckzeile:1.5rem} .ds-felder{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin:0;border:1px solid var(--vordruck-linie);background:var(--vordruck-linie)}.ds-f{display:grid;gap:0.125rem;padding:0.375rem 0.75rem 0.5rem;background:var(--papier)}.ds-breit{grid-column:span 2}.ds-f dt{color:var(--vordruck);font:500 0.8125rem/1.3 var(--form-schmal);letter-spacing:0.05em;text-transform:uppercase;}.ds-f dd{margin:0;font-family:var(--druck);font-size:var(--druckgrad);font-weight:900;line-height:var(--druckzeile);font-variant-ligatures:none;color:var(--farbband)}"
+    },
+    {
+      "name": "Reply Slip",
+      "kind": "custom",
+      "refersTo": "button-primary",
+      "description": "Tear-off slip on a dashed green perforation holding the one solid button.",
+      "html": "<aside class=\"ds-abriss\"><p class=\"ds-schnitt\">Hier abtrennen</p><p class=\"ds-lab\">Rückantwort</p><p class=\"ds-dr\">An Dustin Tramm</p><a class=\"ds-k\" href=\"#\">Schreibt mir</a><p class=\"ds-dr\"><a href=\"#\">dustin.tramm@yinside.de</a></p></aside>",
+      "css": ":host{--papier:#fbfbf7;--vordruck:#1b5640;--vordruck-tief:#12402f;--vordruck-linie:#9dbcab;--vordruck-flaeche:#e9f1e5;--gruenband:#e6f0e2;--farbband:#171716;--rot:#9a1a12;--perforation:#a3aba0;--druck:\"Doto\",ui-monospace,\"Cascadia Mono\",monospace;--form:\"Fira Sans\",system-ui,sans-serif;--form-schmal:\"Fira Sans Condensed\",\"Fira Sans\",system-ui,sans-serif;--druckgrad:1.0625rem;--druckzeile:1.5rem} .ds-abriss{position:relative;display:grid;gap:0.625rem;max-width:18.5rem;margin-top:1rem;padding:1.5rem 1.25rem 1.25rem;border:1.5px dashed var(--vordruck);background:var(--papier)}.ds-abriss p{margin:0}.ds-schnitt{position:absolute;top:0;left:1rem;padding:0 0.5rem;background:var(--papier);color:var(--vordruck);font:500 0.8125rem/1.3 var(--form-schmal);letter-spacing:0.05em;text-transform:uppercase;line-height:1;transform:translateY(-55%)}.ds-lab{color:var(--vordruck);font:500 0.8125rem/1.3 var(--form-schmal);letter-spacing:0.05em;text-transform:uppercase;}.ds-dr{font-family:var(--druck);font-size:var(--druckgrad);font-weight:900;line-height:var(--druckzeile);font-variant-ligatures:none;color:var(--farbband)}.ds-dr a{color:var(--farbband);text-underline-offset:0.2em}.ds-k{display:block;padding:0.875rem 1.25rem;border-radius:2px;background:var(--vordruck);color:var(--papier);font:700 1.25rem/1.2 var(--form-schmal);text-align:center;text-decoration:none;transition:background-color 160ms cubic-bezier(0.16,1,0.3,1)}.ds-k:hover{background:var(--vordruck-tief)}.ds-k:focus-visible{outline:3px solid var(--farbband);outline-offset:3px}"
+    },
+    {
+      "name": "Reversed Figure and Finding",
+      "kind": "custom",
+      "refersTo": "input-print",
+      "description": "Naive figure struck in red, corrected figure double-struck, a fired rule in red.",
+      "html": "<p class=\"ds-p\"><s class=\"ds-naiv\">8,00</s> <span class=\"ds-doppelt\">9,00</span></p><p class=\"ds-p ds-verstoss\"><span class=\"ds-doppelt\">VERSTOSS</span> § 5 ArbZG Ruhezeit unter 11 Stunden</p>",
+      "css": ":host{--papier:#fbfbf7;--vordruck:#1b5640;--vordruck-tief:#12402f;--vordruck-linie:#9dbcab;--vordruck-flaeche:#e9f1e5;--gruenband:#e6f0e2;--farbband:#171716;--rot:#9a1a12;--perforation:#a3aba0;--druck:\"Doto\",ui-monospace,\"Cascadia Mono\",monospace;--form:\"Fira Sans\",system-ui,sans-serif;--form-schmal:\"Fira Sans Condensed\",\"Fira Sans\",system-ui,sans-serif;--druckgrad:1.0625rem;--druckzeile:1.5rem} .ds-p{margin:0;font-family:var(--druck);font-size:var(--druckgrad);font-weight:900;line-height:var(--druckzeile);font-variant-ligatures:none;color:var(--farbband)}.ds-naiv{color:var(--rot);text-decoration:line-through 0.12em var(--rot)}.ds-doppelt{text-shadow:0.05em 0 0 currentColor}.ds-verstoss{color:var(--rot)}"
+    },
+    {
+      "name": "Journal on Green Bar",
+      "kind": "custom",
+      "refersTo": "journal-band",
+      "description": "Entries on alternating green and white listing-paper bands.",
+      "html": "<ol class=\"ds-buch\"><li><span class=\"ds-lfd\">01</span><span>Ü</span><span>AGENT</span><span>Rechenkern mit Tests angelegt.</span></li><li><span class=\"ds-lfd\">02</span><span>N</span><span>DUSTIN</span><span>Zeitumstellung als eigener Fall.</span></li><li class=\"ds-storno\"><span class=\"ds-lfd\">03</span><span>S</span><span>AGENT</span><span>Erster Entwurf verworfen.</span></li></ol>",
+      "css": ":host{--papier:#fbfbf7;--vordruck:#1b5640;--vordruck-tief:#12402f;--vordruck-linie:#9dbcab;--vordruck-flaeche:#e9f1e5;--gruenband:#e6f0e2;--farbband:#171716;--rot:#9a1a12;--perforation:#a3aba0;--druck:\"Doto\",ui-monospace,\"Cascadia Mono\",monospace;--form:\"Fira Sans\",system-ui,sans-serif;--form-schmal:\"Fira Sans Condensed\",\"Fira Sans\",system-ui,sans-serif;--druckgrad:1.0625rem;--druckzeile:1.5rem} .ds-buch{display:grid;margin:0;padding:0;list-style:none;border-block:1px solid var(--vordruck-linie);font-family:var(--druck);font-size:var(--druckgrad);font-weight:900;line-height:var(--druckzeile);font-variant-ligatures:none;color:var(--farbband)}.ds-buch li{display:grid;grid-template-columns:3ch 2ch 7ch minmax(0,1fr);column-gap:1.5ch;padding:0.75rem 1rem}.ds-buch li:nth-child(odd){background:var(--gruenband)}.ds-lfd{color:var(--vordruck)}.ds-storno{color:var(--rot)}.ds-storno span:last-child::before{content:\"− \"}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Abrechnung im Endlosdruck",
+    "overview": "The whole surface is one continuous sheet of tabulating paper lying on a grey-green desk. A form manufacturer printed the pre-print in form green: field names, ruled boxes, column heads, section rules, tick boxes, the tear-off reply slip. A dot-matrix printer then struck the data onto it in ribbon black. Red on the same ribbon appears only where something is reversed or a rule fires. Every element belongs to one of those three inks, and the question \"who put this on the paper, the form or the printer?\" decides its face, size and colour.\n\nDensity is that of a payslip: compact boxes with hairline shared rules, figures in fixed-character columns, totals bottom right. Rank never comes from type size on the printed layer; it comes from capitals, double strike and red. The sheet is broken into sheets by fanfold perforation, not by cards or panels. It is light only, because it is paper.\n\nMotion is the print head: printed text reveals left to right in hard steps, once on load and again when a line is reprinted, and not at all under reduced motion.",
+    "keyCharacteristics": [
+      "Three inks: form green pre-print, ribbon black print, ribbon red for reversals and violations.",
+      "One printed type size (17px Doto 900) for every figure, list and message the printer produces.",
+      "Tractor holes and micro-perforation as background layers of the paper itself; fanfold perforation between sheets.",
+      "Hairline grids built from 1px gaps over a green ground, never from boxed cards.",
+      "A single solid button per reply slip; everything else is a printed link or an underlined pre-print text button."
+    ],
+    "rules": [
+      {
+        "name": "The Three Inks Rule",
+        "body": "Every mark is pre-print green, ribbon black or ribbon red. A fourth hue does not exist on this paper.",
+        "section": "colors"
+      },
+      {
+        "name": "The Red Fires Rule",
+        "body": "Red appears only when a rule fires or an entry is reversed. If nothing is wrong, the screen has no red.",
+        "section": "colors"
+      },
+      {
+        "name": "The Printer's Links Rule",
+        "body": "Links inside printed text are ribbon black with an underline; green links belong to pre-printed or typed prose.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Druckgrad Rule",
+        "body": "The printer has one size (--druckgrad) and one line height. Printed hierarchy comes from capitals, double strike (text-shadow 0.05em of currentColor) and red, never from a larger size.",
+        "section": "typography"
+      },
+      {
+        "name": "The Who Printed It Rule",
+        "body": "If the form manufacturer would have printed it, it is Fira Sans Condensed in green. If the printer would, it is Doto in black. Typed correspondence is Fira Sans.",
+        "section": "typography"
+      },
+      {
+        "name": "The Ink Not Lift Rule",
+        "body": "Nothing on the paper casts a shadow. Separation is a rule, a hairline grid or a tint band.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do decide every element's ink by asking whether the form or the printer put it there.",
+      "Do keep all printed text at --druckgrad (1.0625rem) with a 1.5rem line; rank with capitals, double strike or red.",
+      "Do separate content with 2px green section rules, hairline grids and fanfold perforations.",
+      "Do align printed columns in ch of the print face on a shared grid template.",
+      "Do keep the print-head reveal stepped, once per print, and off under reduced motion."
+    ],
+    "donts": [
+      "Don't use red for anything but reversals, violations and errors.",
+      "Don't enlarge printed text to make a figure important.",
+      "Don't add rounded cards, drop shadows on content, or a dark theme; it is paper.",
+      "Don't add a second solid button to a slip or a solid button outside a slip.",
+      "Don't introduce a fourth hue or gradients beyond the paper's own layers (tractor holes, perforation, fanfold crease, letter ruling)."
+    ]
+  }
+}

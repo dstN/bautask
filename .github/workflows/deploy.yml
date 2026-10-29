@@ -1,0 +1,85 @@
+name: Deploy
+
+# Puts dist/ on the Netcup webspace under /bautask.yinside.de/httpdocs after a green CI on master, or by hand. The
+# steps are those of dstN/netcup-deploy (static kind), written out here: that workflow lives in a private repository,
+# which a public one cannot call. Login by password over ssh with sshpass and a pinned host key, secrets from the
+# environment "production" (netcup-deploy: zugangsdaten.sh). Rollback: run this by hand on an older commit.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://bautask.yinside.de
+    concurrency:
+      group: deploy-bautask
+      cancel-in-progress: false
+    env:
+      DOMAIN: bautask.yinside.de
+      ZIEL: /bautask.yinside.de/httpdocs
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+    steps:
+      - name: Check the environment
+        env:
+          SSHPASS: ${{ secrets.DEPLOY_PASSWORD }}
+          HOSTKEY: ${{ secrets.DEPLOY_SSH_HOSTKEY }}
+        run: |
+          missing=''
+          [ -n "$DEPLOY_HOST" ] || missing="$missing DEPLOY_HOST"
+          [ -n "$DEPLOY_USER" ] || missing="$missing DEPLOY_USER"
+          [ -n "$SSHPASS" ] || missing="$missing DEPLOY_PASSWORD"
+          [ -n "$HOSTKEY" ] || missing="$missing DEPLOY_SSH_HOSTKEY"
+          [ -z "$missing" ] || { echo "::error::The environment production lacks$missing"; exit 1; }
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # The privacy policy goes live only with the log period read from Plesk (src/config/legal.ts).
+      - name: Build
+        run: |
+          npm ci --no-audit --no-fund
+          node scripts/vor-dem-deploy.mjs
+          npm run build
+
+      - name: Prepare ssh (pinned host key, password via sshpass)
+        env:
+          HOSTKEY: ${{ secrets.DEPLOY_SSH_HOSTKEY }}
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$HOSTKEY" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      # Files first, then .htaccess, the pages last: a page never points at a file that is not there yet.
+      - name: Upload over the document root
+        env:
+          SSHPASS: ${{ secrets.DEPLOY_PASSWORD }}
+        run: |
+          set -eu
+          ssh_() { sshpass -e ssh -o StrictHostKeyChecking=yes -o PubkeyAuthentication=no -o Compression=yes "$DEPLOY_USER@$DEPLOY_HOST" "$@"; }
+          ssh_ "mkdir -p '$ZIEL'"
+          tar cf - -C dist --exclude='*.html' --exclude='./.htaccess' . | ssh_ "tar xf - -C '$ZIEL'"
+          tar cf - -C dist ./.htaccess | ssh_ "tar xf - -C '$ZIEL'"
+          (cd dist && find . -name '*.html' -print0 | tar cf - --null -T -) | ssh_ "tar xf - -C '$ZIEL'"
+
+      - name: Live checks from outside
+        run: sh scripts/check-live.sh "https://$DOMAIN"

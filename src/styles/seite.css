@@ -1,0 +1,1308 @@
+/* One continuous sheet of tabulating paper. Three inks only: the pre-print in form green, the dot-matrix ribbon in
+   black, and red on the same ribbon for reversals and rules that fire. Everything the printer prints has one size
+   (--druckgrad); rank comes from caps, double strike and red, never from size.
+
+   Two shifts. The day shift is paper under office light; the night shift is the carbon sheet behind it, blue-black
+   with the strikes showing light. Every colour is one light-dark() pair, so the device decides by default and the
+   switch in the head (data-ansicht on <html>, src/scripts/ansicht.ts) pins one for the page view. */
+
+:root {
+  color-scheme: light dark;
+  --papier: light-dark(#fbfbf7, #141a24);
+  --umgebung: light-dark(#c9cec6, #0b0d11);
+  --umgebung-tief: light-dark(#a9b0a6, #040506);
+  --vordruck: light-dark(#1b5640, #8fd1ad);
+  --vordruck-tief: light-dark(#12402f, #b8e6cc);
+  --vordruck-linie: light-dark(#9dbcab, #3e5c4e);
+  --vordruck-flaeche: light-dark(#e9f1e5, #1d2a27);
+  --gruenband: light-dark(#e6f0e2, #1a2622);
+  --farbband: light-dark(#171716, #ecebe4);
+  --rot: light-dark(#9a1a12, #ff9c8f);
+  --perforation: light-dark(#a3aba0, #3b434e);
+  --schatten-nah: light-dark(rgb(20 32 24 / 0.14), rgb(0 0 0 / 0.5));
+  --schatten-fern: light-dark(rgb(20 32 24 / 0.28), rgb(0 0 0 / 0.6));
+  --falte: light-dark(rgb(40 55 40 / 0.09), rgb(0 0 0 / 0.3));
+
+  --druck: 'Doto', ui-monospace, 'Cascadia Mono', monospace;
+  --form: 'Fira Sans', system-ui, sans-serif;
+  --form-schmal: 'Fira Sans Condensed', 'Fira Sans', system-ui, sans-serif;
+  --druckgrad: 1.0625rem;
+  --druckzeile: 1.5rem;
+
+  --rand: clamp(1rem, 2.6vw, 2.25rem);
+  --loch: clamp(0.4375rem, 1vw, 0.75rem);
+  --pad: clamp(1rem, 4.2vw, 3.75rem);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scrollbar-color: var(--vordruck) var(--umgebung);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--umgebung);
+  color: var(--farbband);
+  font: 400 1.0625rem/1.6 var(--form);
+  font-kerning: normal;
+}
+
+::selection {
+  background: var(--vordruck);
+  color: var(--papier);
+}
+
+:focus-visible {
+  outline: 3px solid var(--vordruck);
+  outline-offset: 3px;
+}
+
+a {
+  color: var(--vordruck);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  color: var(--vordruck-tief);
+  text-decoration-thickness: 2px;
+}
+
+/* What the printer prints is ribbon black, links included; green belongs to the pre-print. */
+.druck a,
+a.druck {
+  color: var(--farbband);
+}
+
+.druck a:hover,
+a.druck:hover {
+  color: var(--farbband);
+}
+
+:root[data-ansicht='hell'] {
+  color-scheme: light;
+}
+
+:root[data-ansicht='dunkel'] {
+  color-scheme: dark;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd,
+figure {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+.vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.sprung {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 2;
+  padding: 0.5rem 0.875rem;
+  background: var(--vordruck);
+  color: var(--papier);
+  font: 700 1rem/1.2 var(--form-schmal);
+  transform: translateY(-200%);
+}
+
+.sprung:focus-visible {
+  transform: none;
+  outline-color: var(--farbband);
+}
+
+/* ---- the shift switch: a row of tick boxes pre-printed at the top of the sheet ------------------------------ */
+
+.ansicht {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0 1.5rem;
+  margin: 0;
+  padding: 0.75rem 0 0;
+  border: 0;
+}
+
+.ansicht[hidden] {
+  display: none;
+}
+
+.ansicht legend {
+  float: left;
+  margin-right: 0.25rem;
+  padding: 0;
+}
+
+.ansicht .ankreuz {
+  font-size: 0.9375rem;
+}
+
+.ansicht .ankreuz__kasten {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ---- the sheet ----------------------------------------------------------------------------------------------- */
+
+/* Tractor holes and the micro-perforation beside them are layers of the paper itself, so a fold line can run
+   across the whole width. The holes are painted in the colour of the desk below; the paper has no transparency. */
+.papier {
+  display: block;
+  max-width: 82rem;
+  margin: 0 auto;
+  padding-inline: calc(var(--rand) + var(--pad));
+  background:
+    radial-gradient(circle, var(--umgebung-tief) 0 calc(var(--loch) / 2 - 0.75px), var(--umgebung) calc(var(--loch) / 2 - 0.25px) calc(var(--loch) / 2), transparent calc(var(--loch) / 2 + 0.5px)) left top / var(--rand) 1.5rem repeat-y,
+    radial-gradient(circle, var(--umgebung-tief) 0 calc(var(--loch) / 2 - 0.75px), var(--umgebung) calc(var(--loch) / 2 - 0.25px) calc(var(--loch) / 2), transparent calc(var(--loch) / 2 + 0.5px)) right top / var(--rand) 1.5rem repeat-y,
+    repeating-linear-gradient(to bottom, var(--perforation) 0 3px, transparent 3px 7px) var(--rand) 0 / 1px 100% no-repeat,
+    repeating-linear-gradient(to bottom, var(--perforation) 0 3px, transparent 3px 7px) calc(100% - var(--rand)) 0 / 1px 100% no-repeat,
+    var(--papier);
+  box-shadow:
+    0 1px 2px var(--schatten-nah),
+    0 18px 40px -12px var(--schatten-fern);
+}
+
+.blatt {
+  padding-block: clamp(2.25rem, 5vw, 4.5rem);
+}
+
+.blatt--abrechnung {
+  padding-top: clamp(1.5rem, 3.5vw, 3rem);
+}
+
+/* Sheets below the first one are laid out only when they come near the screen: the page is long and the first
+   paint should not wait for the journal. Their text stays findable and in the accessibility tree. */
+.blatt--mitteilung,
+.blatt--nachweise,
+.blatt--journal,
+.blatt--schluss,
+.anhang {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1200px;
+}
+
+/* The fanfold: a perforation across the full width, tractor margins included, with the crease of the fold. */
+.falz {
+  height: 1.25rem;
+  margin: 0 calc(-1 * (var(--rand) + var(--pad)));
+  border: 0;
+  border-top: 1.5px dashed var(--perforation);
+  background: linear-gradient(to bottom, var(--falte), transparent);
+}
+
+/* ---- type roles ---------------------------------------------------------------------------------------------- */
+
+/* The printer: one face, one size, one line height. */
+.druck {
+  font-family: var(--druck);
+  font-size: var(--druckgrad);
+  font-weight: 900;
+  line-height: var(--druckzeile);
+  letter-spacing: 0;
+  font-variant-ligatures: none;
+}
+
+/* Struck twice by the print head. */
+.doppelt {
+  text-shadow: 0.05em 0 0 currentColor;
+}
+
+/* The pre-print: field names in form green. */
+.feldname,
+.etikett,
+dt {
+  color: var(--vordruck);
+  font: 500 0.8125rem/1.3 var(--form-schmal);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.formtitel {
+  color: var(--vordruck);
+  font: 700 clamp(2.5rem, 1.25rem + 3.2vw, 3.75rem) / 0.98 var(--form-schmal);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.abschnitt {
+  margin-bottom: 1.25rem;
+  padding-top: 1.125rem;
+  border-top: 2px solid var(--vordruck);
+  color: var(--vordruck);
+  font: 700 clamp(1.5rem, 1.2rem + 1vw, 2rem) / 1.1 var(--form-schmal);
+}
+
+/* ---- head of the statement ----------------------------------------------------------------------------------- */
+
+.kopf {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 18.5rem);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: start;
+}
+
+.kopf__text {
+  display: grid;
+  gap: 1rem;
+}
+
+.aufhaenger {
+  max-width: 42ch;
+  font: 500 clamp(1.375rem, 1.05rem + 0.9vw, 1.75rem) / 1.28 var(--form);
+  text-wrap: pretty;
+}
+
+.unterzeile {
+  max-width: 60ch;
+  font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  text-wrap: pretty;
+}
+
+/* The tear-off reply slip, separated from the form by its own perforation. */
+.abriss {
+  position: relative;
+  display: grid;
+  gap: 0.625rem;
+  padding: 1.5rem 1.25rem 1.25rem;
+  border: 1.5px dashed var(--vordruck);
+}
+
+.abriss__schnitt {
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  padding: 0 0.5rem;
+  background: var(--papier);
+  color: var(--vordruck);
+  font: 500 0.8125rem/1 var(--form-schmal);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transform: translateY(-55%);
+}
+
+.abriss__wege {
+  display: grid;
+}
+
+.abriss__wege a {
+  overflow-wrap: anywhere;
+}
+
+.knopf {
+  display: block;
+  margin-block: 0.25rem;
+  padding: 0.875rem 1.25rem;
+  border-radius: 2px;
+  background: var(--vordruck);
+  color: var(--papier);
+  font: 700 1.25rem/1.2 var(--form-schmal);
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.knopf:hover {
+  background: var(--vordruck-tief);
+  color: var(--papier);
+}
+
+.knopf:active {
+  transform: translateY(1px);
+}
+
+.knopf:focus-visible {
+  outline-color: var(--farbband);
+}
+
+/* Form fields: a grid of boxes whose shared rules are the gaps. */
+.felder {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* dense: no empty cell shows the rule colour when a wide field wraps */
+  grid-auto-flow: dense;
+  gap: 1px;
+  margin-top: clamp(1.5rem, 3vw, 2rem);
+  border: 1px solid var(--vordruck-linie);
+  background: var(--vordruck-linie);
+}
+
+.feld {
+  display: grid;
+  align-content: start;
+  gap: 0.125rem;
+  padding: 0.375rem 0.75rem 0.5rem;
+  background: var(--papier);
+}
+
+.feld--breit {
+  grid-column: span 2;
+}
+
+/* ---- the timesheet ------------------------------------------------------------------------------------------- */
+
+.posten {
+  margin-top: clamp(1.75rem, 3.5vw, 2.25rem);
+}
+
+.posten__kopf {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
+  margin-bottom: 0.75rem;
+  padding-top: 1.125rem;
+  border-top: 2px solid var(--vordruck);
+}
+
+.posten__kopf .abschnitt {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.hinweis-beispiel {
+  max-width: 48ch;
+  font-size: 0.9375rem;
+}
+
+/* Columns in ch of the printer face: the grid containers carry it, so header and lines share one measure. */
+.spalten,
+.zeile {
+  display: grid;
+  grid-template-columns:
+    [pos] 3ch [datum] 11.5ch [kommen] 7ch [gehen] 7ch [pause] 4.5ch
+    [dauer] 10ch [arbeit] 6ch [nacht] 6ch [sonntag] 7ch [mehr] minmax(0, 1fr) [storno] auto [ende];
+  column-gap: 1.5ch;
+  font-family: var(--druck);
+  font-size: var(--druckgrad);
+}
+
+.spalten {
+  margin-inline: -0.5rem;
+  padding: 0.375rem 0.5rem;
+  border-bottom: 1.5px solid var(--vordruck);
+  background: var(--vordruck-flaeche);
+  color: var(--vordruck);
+  font-family: var(--druck);
+}
+
+.spalten > span {
+  font: 500 0.8125rem/1.3 var(--form-schmal);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.spalte--zahl {
+  text-align: right;
+}
+
+.zeile {
+  align-items: start;
+  row-gap: 0.25rem;
+  padding-block: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--vordruck-linie);
+}
+
+.zeile__pos {
+  padding-top: 0.25rem;
+}
+
+.zeile__feld {
+  display: grid;
+  gap: 0.25rem;
+  justify-items: start;
+}
+
+.zeile .etikett {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.eingabe {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0.125rem 0.25rem;
+  border: 0;
+  border-bottom: 1.5px dotted var(--vordruck);
+  border-radius: 0;
+  background: transparent;
+  color: var(--farbband);
+  caret-color: var(--rot);
+}
+
+.eingabe:hover {
+  background: var(--vordruck-flaeche);
+}
+
+.eingabe:focus-visible {
+  outline-offset: 2px;
+  background: var(--vordruck-flaeche);
+}
+
+.eingabe[aria-invalid='true'] {
+  border-bottom: 2px solid var(--rot);
+  color: var(--rot);
+}
+
+.faltung {
+  width: 100%;
+  padding: 0.125rem 0.125rem;
+  border: 1.5px solid var(--rot);
+  border-radius: 0;
+  background: var(--papier);
+  color: var(--rot);
+  font-size: var(--druckgrad);
+}
+
+.faltung[hidden] {
+  display: none;
+}
+
+/* The printed figures are one button: any of them opens the derivation of the line. */
+.zeile__werte {
+  display: grid;
+  grid-column: dauer / storno;
+  grid-template-columns: subgrid;
+  align-items: start;
+  margin: 0;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: right;
+  cursor: pointer;
+}
+
+.wert {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  column-gap: 1ch;
+}
+
+.wert .druck {
+  display: inline-block;
+}
+
+.zeile__werte:disabled {
+  cursor: default;
+}
+
+.zeile__werte:disabled .zeile__mehr {
+  visibility: hidden;
+}
+
+.zeile__werte:not(:disabled):hover .wert .druck:not(.naiv) {
+  text-decoration: underline dotted var(--vordruck) 2px;
+  text-underline-offset: 0.28em;
+}
+
+.wert--dauer:has(.naiv:not([hidden])) [data-aus='dauer'] {
+  text-shadow: 0.05em 0 0 currentColor;
+}
+
+.naiv {
+  color: var(--rot);
+  text-decoration: line-through 0.12em var(--rot);
+}
+
+.naiv[hidden] {
+  display: none;
+}
+
+.zeile__mehr {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--vordruck);
+  font: 500 0.8125rem/1.5rem var(--form-schmal);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: underline 1px;
+  text-underline-offset: 0.25em;
+}
+
+.zeile__mehr::after {
+  content: '';
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-25%) rotate(45deg);
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.zeile__werte[aria-expanded='true'] .zeile__mehr::after {
+  transform: translateY(15%) rotate(-135deg);
+}
+
+.textknopf {
+  margin: 0;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  color: var(--vordruck);
+  font: 500 0.8125rem/1.5rem var(--form-schmal);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: underline 1px;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+
+.textknopf:hover {
+  color: var(--vordruck-tief);
+  text-decoration-thickness: 2px;
+}
+
+.textknopf:disabled {
+  color: var(--farbband);
+  text-decoration: none;
+  cursor: not-allowed;
+}
+
+.zeile__storno {
+  grid-column: storno;
+  justify-self: end;
+}
+
+.zeile__fehler {
+  grid-column: datum / ende;
+  color: var(--rot);
+}
+
+.zeile__fehler:empty {
+  display: none;
+}
+
+.befunde {
+  display: grid;
+  grid-column: datum / ende;
+  gap: 0.125rem;
+}
+
+.befunde:empty {
+  display: none;
+}
+
+.befund {
+  display: grid;
+  grid-template-columns: 13ch 17ch minmax(0, 1fr);
+  column-gap: 1.5ch;
+}
+
+.befund--verstoss {
+  color: var(--rot);
+}
+
+.befund--verstoss .befund__art,
+.befund--entscheidung .befund__art {
+  text-shadow: 0.05em 0 0 currentColor;
+}
+
+.herleitung {
+  grid-column: datum / ende;
+  margin-top: 0.375rem;
+  padding: 0.5rem 0 0.5rem 1.5rem;
+  border-top: 1px dashed var(--vordruck-linie);
+  counter-reset: schritt;
+}
+
+.herleitung[hidden],
+.herleitung:empty {
+  display: none;
+}
+
+.herleitung li {
+  counter-increment: schritt;
+}
+
+.herleitung li::before {
+  content: counter(schritt) '  ';
+  color: var(--vordruck);
+}
+
+.leer {
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--vordruck-linie);
+}
+
+.werkzeug {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+}
+
+.vorlagen {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.25rem 1.5rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.vorlagen legend {
+  margin-bottom: 0.75rem;
+  padding: 0;
+}
+
+/* Tick boxes of the pre-print; the printer puts the X. */
+.ankreuz {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 2.75rem;
+  font: 500 1.0625rem/1.2 var(--form-schmal);
+  cursor: pointer;
+}
+
+.ankreuz input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.ankreuz__kasten {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1.5px solid var(--vordruck);
+  background: var(--papier);
+}
+
+.ankreuz__kasten {
+  line-height: 1;
+}
+
+/* The printed X: line height 1 so the glyph box is no taller than the box it sits in, which grid then centres.
+   Doto's X has its ink from 0 to 0.5em inside a 0.6em advance (measured with canvas measureText), so it sits 0.05em
+   left of the middle; vertically it is centred already. The translate moves it by exactly that. */
+.ankreuz input:checked + .ankreuz__kasten::after {
+  content: 'X';
+  color: var(--farbband);
+  font-size: 1rem;
+  line-height: 1;
+  transform: translateX(0.05em);
+}
+
+.ansicht .ankreuz input:checked + .ankreuz__kasten::after {
+  font-size: 0.875rem;
+}
+
+.ankreuz:hover .ankreuz__kasten {
+  background: var(--vordruck-flaeche);
+}
+
+.ankreuz input:focus-visible + .ankreuz__kasten {
+  outline: 3px solid var(--vordruck);
+  outline-offset: 2px;
+}
+
+/* Totals sit bottom right, as on every payslip. */
+.ergebnis {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 25rem);
+  gap: 1.5rem clamp(1.5rem, 4vw, 4rem);
+  align-items: start;
+  margin-top: 2rem;
+}
+
+.summenblock {
+  display: grid;
+  gap: 1rem;
+}
+
+.summe {
+  display: grid;
+}
+
+.summe > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.375rem 0.75rem;
+  border-bottom: 1px solid var(--vordruck-linie);
+}
+
+.summe dd {
+  text-align: right;
+}
+
+.summe > .summe__haupt {
+  border: 2px solid var(--vordruck);
+  padding-block: 0.625rem;
+}
+
+.summe__fehlt {
+  color: var(--rot);
+}
+
+.summe__fehlt[hidden] {
+  display: none;
+}
+
+.summe__haupt dt {
+  font: 700 1rem/1.3 var(--form-schmal);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Under the totals, not in the line grid: the named columns of .befunde do not exist here. */
+.befunde--summe {
+  grid-column: auto;
+}
+
+.befunde--summe .befund {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.befunde--summe .befund__text {
+  grid-column: 1 / -1;
+}
+
+/* ---- appendix of the statement ------------------------------------------------------------------------------- */
+
+.anhang {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 3.5rem);
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+}
+
+/* Long printed lists run in two columns, as a listing would on wide paper. */
+.pruefgruppen,
+.nicht-abgebildet .druckliste {
+  columns: 2;
+  column-gap: clamp(2rem, 5vw, 5rem);
+}
+
+.pruefgruppe,
+.nicht-abgebildet .druckliste li {
+  break-inside: avoid;
+}
+
+.pruefgruppe:first-child h3 {
+  margin-top: 0;
+}
+
+.anhang .abschnitt {
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+}
+
+.anhang p:not(.druck) {
+  max-width: 52ch;
+  margin-bottom: 0.875rem;
+  font-size: 0.9375rem;
+}
+
+.druckliste li {
+  position: relative;
+  padding-left: 2ch;
+}
+
+.druckliste li::before {
+  content: '-';
+  position: absolute;
+  left: 0;
+}
+
+.druckliste li + li {
+  margin-top: 0.25rem;
+}
+
+.druckliste--tests li {
+  padding-left: 4ch;
+}
+
+.druckliste--tests li::before {
+  content: none;
+}
+
+.druckliste--tests .ok,
+.druckliste--tests .fehlt {
+  position: absolute;
+  left: 0;
+}
+
+.fehlt {
+  color: var(--rot);
+}
+
+.pruefung h3 {
+  margin: 1.25rem 0 0.375rem;
+}
+
+.pruefgruppe {
+  padding-top: 0.0625rem;
+}
+
+.pruefung__kopf {
+  margin-bottom: 0.5rem;
+}
+
+/* ---- letter -------------------------------------------------------------------------------------------------- */
+
+/* Written into the ruled box of the form: the rules sit one line height apart, under the baselines. */
+.brief {
+  --linie: 1.875rem;
+  padding: 0.125rem 1.25rem var(--linie);
+  border: 1px solid var(--vordruck-linie);
+  background: repeating-linear-gradient(to bottom, transparent 0 calc(var(--linie) - 1px), var(--vordruck-linie) calc(var(--linie) - 1px) var(--linie)) 0 -0.2rem;
+  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+  line-height: var(--linie);
+}
+
+.brief p + p {
+  margin-top: var(--linie);
+}
+
+.brief p {
+  text-wrap: pretty;
+}
+
+.brief__gruss {
+  font-weight: 700;
+}
+
+.mitteilung {
+  display: grid;
+  grid-template-columns: minmax(0, 68ch) minmax(14rem, 1fr);
+  gap: 2rem clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+
+.anlagen {
+  display: grid;
+  gap: 0.625rem;
+  padding-top: 1.125rem;
+  border-top: 2px solid var(--vordruck);
+}
+
+.anlagen ol {
+  counter-reset: anlage;
+}
+
+.anlagen li {
+  counter-increment: anlage;
+}
+
+.anlagen li::before {
+  content: counter(anlage) '  ';
+  color: var(--vordruck);
+}
+
+/* ---- proof --------------------------------------------------------------------------------------------------- */
+
+.vorbemerkung {
+  max-width: 60ch;
+  margin-bottom: 1.5rem;
+}
+
+.listenkopf,
+.projekt,
+.station {
+  display: grid;
+  grid-template-columns: minmax(0, 20ch) minmax(0, 1fr);
+  column-gap: 3ch;
+  font-family: var(--druck);
+  font-size: var(--druckgrad);
+}
+
+.listenkopf {
+  margin-inline: -0.5rem;
+  padding: 0.375rem 0.5rem;
+  border-bottom: 1.5px solid var(--vordruck);
+  background: var(--vordruck-flaeche);
+  color: var(--vordruck);
+}
+
+.listenkopf > span {
+  font: 500 0.8125rem/1.3 var(--form-schmal);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.projekt,
+.station {
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--vordruck-linie);
+}
+
+.projekt__name {
+  display: flex;
+  flex-direction: column;
+}
+
+.projekt__angaben,
+.station__angaben {
+  max-width: 78ch;
+}
+
+.projekte {
+  margin-bottom: clamp(3rem, 6vw, 4.5rem);
+}
+
+.station__details {
+  margin-top: 0.25rem;
+}
+
+/* ---- journal on green-bar listing paper ---------------------------------------------------------------------- */
+
+/* One band per entry, alternating green and white, so the end of a long entry is visible. */
+.buchungen {
+  margin-inline: calc(-1 * var(--pad));
+  border-block: 1px solid var(--vordruck-linie);
+}
+
+.blatt--journal .vorbemerkung {
+  max-width: 62ch;
+}
+
+.buchungen {
+  display: grid;
+}
+
+.buchung {
+  display: grid;
+  grid-template-columns: 3ch 2ch 7ch minmax(0, 1fr);
+  column-gap: 1.5ch;
+  padding: 0.75rem var(--pad);
+}
+
+.buchung:nth-child(odd) {
+  background: var(--gruenband);
+}
+
+.buchung__lfd {
+  color: var(--vordruck);
+}
+
+.buchung__bu abbr {
+  text-decoration: none;
+}
+
+.buchung--storno {
+  color: var(--rot);
+}
+
+.buchung--storno .buchung__text::before {
+  content: '− ';
+}
+
+.buchung__text {
+  max-width: 78ch;
+}
+
+.legende {
+  margin-top: 1rem;
+}
+
+/* ---- close --------------------------------------------------------------------------------------------------- */
+
+.schluss {
+  display: grid;
+  justify-items: center;
+  gap: 2.5rem;
+  text-align: center;
+}
+
+.abriss--schluss {
+  width: min(100%, 28rem);
+  justify-items: stretch;
+  text-align: left;
+}
+
+.fuss {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 2rem;
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--vordruck-linie);
+  font-size: 0.9375rem;
+}
+
+/* ---- motion: the print head, once ----------------------------------------------------------------------------- */
+
+@keyframes druck {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .druckt,
+  .felder dd,
+  .zeilen .druck:not(.eingabe, .faltung),
+  .zeilen .befund {
+    animation: druck 380ms steps(19, end) backwards;
+  }
+
+  .felder .feld:nth-child(2) dd { animation-delay: 70ms; }
+  .felder .feld:nth-child(3) dd { animation-delay: 140ms; }
+  .felder .feld:nth-child(4) dd { animation-delay: 210ms; }
+  .felder .feld:nth-child(5) dd { animation-delay: 280ms; }
+  .felder .feld:nth-child(6) dd { animation-delay: 350ms; }
+  .zeilen .zeile__pos,
+  .zeilen .wert .druck { animation-delay: 460ms; }
+  .zeilen .befund:nth-child(1) { animation-delay: 620ms; }
+  .zeilen .befund:nth-child(2) { animation-delay: 720ms; }
+  .zeilen .befund:nth-child(3) { animation-delay: 820ms; }
+  .zeilen .befund:nth-child(n + 4) { animation-delay: 920ms; }
+
+  .druckt.druckt {
+    animation-delay: 0ms;
+  }
+}
+
+/* ---- narrower sheets ----------------------------------------------------------------------------------------- */
+
+@media (max-width: 64rem) {
+  .kopf {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .abriss {
+    max-width: 30rem;
+  }
+
+  .felder {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ergebnis,
+  .mitteilung {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pruefgruppen,
+  .nicht-abgebildet .druckliste {
+    columns: 1;
+  }
+}
+
+@media (max-width: 56rem) {
+  /* The first screen holds the line with the long night; the slip and the fields follow it. */
+  .blatt--abrechnung {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .blatt--abrechnung .kopf {
+    display: contents;
+  }
+
+  .kopf__text { order: 1; }
+  .posten { order: 2; }
+  .blatt--abrechnung .abriss { order: 3; margin-top: 2.5rem; }
+  .felder { order: 4; }
+  .anhang { order: 5; }
+
+  .spalten,
+  .listenkopf {
+    display: none;
+  }
+
+  .zeile {
+    grid-template-columns: 3ch repeat(3, minmax(0, 1fr));
+    grid-template-areas:
+      'pos datum datum pause'
+      '. kommen gehen .'
+      '. werte werte werte'
+      '. fehler fehler fehler'
+      '. befunde befunde befunde'
+      '. herleitung herleitung herleitung'
+      '. storno storno storno';
+    column-gap: 1ch;
+    row-gap: 0;
+  }
+
+  /* Rows that are empty or hidden collapse to nothing; the spacing lives on the items, not in row-gap. */
+  .zeile > :not(.zeile__pos, .zeile__feld--datum, .zeile__feld--pause) {
+    margin-top: 0.625rem;
+  }
+
+  .zeile .etikett {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .zeile__pos {
+    grid-area: pos;
+    padding-top: 1.3rem;
+  }
+
+  .zeile__feld--datum { grid-area: datum; }
+  .zeile__feld--kommen { grid-area: kommen; }
+  .zeile__feld--gehen { grid-area: gehen; }
+  .zeile__feld--pause { grid-area: pause; }
+
+  .zeile__werte {
+    grid-area: werte;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    row-gap: 0.25rem;
+    text-align: left;
+  }
+
+  .wert {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .zeile__mehr {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .zeile__fehler { grid-area: fehler; }
+  .befunde { grid-area: befunde; }
+  .herleitung { grid-area: herleitung; }
+
+  .zeile__storno {
+    grid-area: storno;
+    justify-self: start;
+  }
+
+  .befund {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .befund__text {
+    grid-column: 1 / -1;
+  }
+
+  .feld--breit {
+    grid-column: 1 / -1;
+  }
+
+  .projekt,
+  .station {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .projekt__name {
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 2ch;
+  }
+
+  .buchung {
+    grid-template-columns: 3ch 2ch minmax(0, 1fr);
+  }
+
+  .buchung__text {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 22rem) {
+  .felder {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 30rem) {
+  /* Short labels keep the switch on one row above the title. */
+  .ansicht__lang {
+    display: none;
+  }
+
+  .ansicht {
+    gap: 0 1rem;
+    padding-top: 0.5rem;
+  }
+
+  .ansicht .ankreuz {
+    gap: 0.5rem;
+  }
+
+  .vorlagen {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1rem;
+  }
+
+  .zeile__werte {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---- reading pages (privacy, 404) ---------------------------------------------------------------------------- */
+
+.blatt--lesen {
+  max-width: 70ch;
+}
+
+.blatt--lesen > * + * {
+  margin-top: 1rem;
+}
+
+.blatt--lesen > .abschnitt {
+  margin-top: 2.5rem;
+  margin-bottom: 0;
+}
+
+.blatt--lesen address {
+  font-style: normal;
+}
+
+.lesen__lead {
+  margin-top: 1.5rem;
+  font-size: 1.1875rem;
+}
+
+.lesen__stand {
+  margin-top: 2.5rem;
+}

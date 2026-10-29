@@ -1,0 +1,42 @@
+{
+  "name": "bautask-bewerbung",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bewerbung von Dustin Tramm bei BauTask: eine Arbeitszeitabrechnung, die die Zeitumstellung richtig rechnet",
+  "author": "Dustin Tramm",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "pruefung": "vitest run --reporter=default --reporter=json --outputFile.json=src/data/pruefung.json",
+    "build": "npm run pruefung && astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "lhci": "npm run lhci:mobile && npm run lhci:desktop",
+    "lhci:mobile": "npx --yes @lhci/cli@0.15.1 autorun",
+    "lhci:desktop": "npx --yes @lhci/cli@0.15.1 autorun --config=lighthouserc.desktop.cjs",
+    "fonts": "fli --font \"Fira Sans\" --weight \"400,700\" --format woff2 --framework vanilla --css src/styles/fonts.css && fli --font \"Fira Sans Condensed\" --weight \"500,700\" --format woff2 --framework vanilla --css src/styles/fonts.css && fli --font \"Doto\" --weight \"900\" --format woff2 --framework vanilla --css src/styles/fonts.css"
+  },
+  "dependencies": {
+    "astro": "^7.4.4"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@axe-core/playwright": "^4.14.0",
+    "@dstn/fli": "^2.0.1",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.6",
+    "eslint": "^10.13.0",
+    "eslint-plugin-astro": "^3.2.1",
+    "eslint-plugin-jsx-a11y-x": "^0.2.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.0.5"
+  }
+}

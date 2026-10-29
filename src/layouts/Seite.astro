@@ -1,0 +1,61 @@
+---
+// The frame: head, skip link, the shift switch, and the continuous sheet; its tractor margins are background layers of .papier. The stylesheet is inlined and
+// allowed by its hash (astro.config.ts, src/integrations/csp.ts); nothing loads from another host.
+import '../styles/fonts.css';
+import '../styles/seite.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#c9cec6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b0d11" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="preload" href="/fonts/doto-900.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/fira-sans-condensed-700.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <a class="sprung" href="#inhalt">Zum Inhalt</a>
+    <div class="papier">
+      <header class="papierkopf">
+        <fieldset class="ansicht" data-ansicht hidden>
+          <legend class="feldname">Ansicht</legend>
+          {
+            [
+              ['auto', 'Auto', 'matisch', ''],
+              ['hell', 'Tag', 'schicht', ', hell'],
+              ['dunkel', 'Nacht', 'schicht', ', dunkel'],
+            ].map(([wert, kurz, rest, sinn], i) => (
+              <label class="ankreuz">
+                <input type="radio" name="ansicht" value={wert} checked={i === 0} />
+                <span class="ankreuz__kasten druck" aria-hidden="true" />
+                <span>
+                  {kurz}<span class="ansicht__lang">{rest}</span><span class="vh">{sinn}</span>
+                </span>
+              </label>
+            ))
+          }
+        </fieldset>
+      </header>
+      <main id="inhalt">
+        <slot />
+      </main>
+    </div>
+    <script>
+      import '../scripts/ansicht';
+    </script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+# Text with LF in the repository whatever the checkout machine does; binaries never touched.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary
+*.avif binary
+*.woff2 binary
+*.ttf binary
+*.mp4 binary
+*.pdf binary

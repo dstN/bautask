@@ -1,0 +1,298 @@
+---
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import Zeile from '../components/Zeile.astro';
+import { NICHT_ABGEBILDET, abrechnen, stunden, zeitraum } from '../core/abrechnung';
+import { betreff, empfaenger, journal, mitteilung, person, projekte, werdegang } from '../data/bewerbung';
+import { VORLAGEN } from '../data/vorlagen';
+import Seite from '../layouts/Seite.astro';
+
+const start = VORLAGEN[0]!;
+const abrechnung = abrechnen(start.schichten);
+const verstoesse = abrechnung.zeilen.flatMap((e) => (e.ok ? e.zeile.befunde : [])).filter((b) => b.art === 'verstoss').length;
+const entscheidungen = abrechnung.zeilen.flatMap((e) => (e.ok ? e.zeile.befunde : [])).filter((b) => b.art === 'entscheidung').length;
+const mail = `mailto:${person.email}?subject=${encodeURIComponent(betreff)}`;
+
+// The test run of this build (npm run pruefung writes it before astro build). Missing only in `astro dev` before the
+// first build; the page then says so instead of inventing a number.
+interface Pruefung {
+  numTotalTests: number;
+  numPassedTests: number;
+  startTime: number;
+  testResults: { assertionResults: { ancestorTitles: string[]; title: string; status: string }[] }[];
+}
+const pruefPfad = join(process.cwd(), 'src/data/pruefung.json');
+const pruefung = existsSync(pruefPfad) ? (JSON.parse(readFileSync(pruefPfad, 'utf8')) as Pruefung) : null;
+const gruppen = new Map<string, { title: string; status: string }[]>();
+for (const datei of pruefung?.testResults ?? []) {
+  for (const t of datei.assertionResults) {
+    const g = t.ancestorTitles[0] ?? 'Allgemein';
+    gruppen.set(g, [...(gruppen.get(g) ?? []), t]);
+  }
+}
+const pruefZeit = pruefung
+  ? new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', dateStyle: 'medium', timeStyle: 'short' }).format(pruefung.startTime)
+  : '';
+const lfd = (n: number): string => String(n).padStart(2, '0');
+const buchung = { Ü: 'übernommen', N: 'nachgeschärft', S: 'storniert' } as const;
+---
+
+<Seite
+  title="Abrechnung der Arbeitszeit · Bewerbung Dustin Tramm"
+  description="Bewerbung von Dustin Tramm bei BauTask: eine Arbeitszeitabrechnung, die auch die Nacht der Zeitumstellung richtig rechnet."
+>
+  <section class="blatt blatt--abrechnung" aria-labelledby="titel">
+    <header class="kopf">
+      <div class="kopf__text">
+        <h1 id="titel" class="formtitel">Abrechnung der Arbeitszeit<span class="vh">: Bewerbung von Dustin Tramm bei BauTask</span></h1>
+        <p class="aufhaenger">
+          Wer in der Nacht zum 25.&nbsp;Oktober von 22 bis 6&nbsp;Uhr gearbeitet hat, war neun Stunden da. Um drei wurde die Uhr auf zwei zurückgestellt.
+        </p>
+        <p class="unterzeile">
+          Das hier ist meine Bewerbung bei euch, eine Arbeitszeitabrechnung, die solche Nächte richtig rechnet. Ihr könnt unten die Zeilen ändern und bei jeder Zahl nachsehen, wie sie zustande kommt.
+        </p>
+      </div>
+      <aside class="abriss" aria-labelledby="rueckantwort">
+        <p class="abriss__schnitt" aria-hidden="true">Hier abtrennen</p>
+        <h2 class="feldname" id="rueckantwort">Rückantwort</h2>
+        <p class="druck">An {person.name}</p>
+        <a class="knopf" href={mail}>Schreibt mir</a>
+        <ul class="abriss__wege druck">
+          <li><a href={mail}>{person.email}</a></li>
+          <li><a href={person.repo.url}>{person.repo.label}</a></li>
+          <li><a href={person.portfolio.url}>{person.portfolio.label}</a></li>
+        </ul>
+      </aside>
+    </header>
+
+    <dl class="felder">
+      <div class="feld"><dt>Name, Vorname</dt><dd class="druck">{person.nameFormular}</dd></div>
+      <div class="feld feld--breit"><dt>Empfänger</dt><dd class="druck">{empfaenger}</dd></div>
+      <div class="feld"><dt>Abrechnungszeitraum</dt><dd class="druck" data-zeitraum>{zeitraum(abrechnung.zeilen) ?? '–'}</dd></div>
+      <div class="feld"><dt>Stelle</dt><dd class="druck">{person.stelle}</dd></div>
+      <div class="feld"><dt>Wochenstunden</dt><dd class="druck">{person.stunden}</dd></div>
+      <div class="feld"><dt>Arbeitsort</dt><dd class="druck">{person.ort}</dd></div>
+      <div class="feld"><dt>Eintritt</dt><dd class="druck">{person.eintritt}</dd></div>
+    </dl>
+
+    <section class="posten" aria-labelledby="stundenzettel">
+      <div class="posten__kopf">
+        <h2 class="abschnitt" id="stundenzettel">Stundenzettel</h2>
+        <p class="hinweis-beispiel">Die Schichten sind ausgedacht. Wenn ihr Datum, Uhrzeit oder Pause ändert, wird die Zeile neu gedruckt.</p>
+      </div>
+      <div class="spalten" aria-hidden="true">
+        <span class="spalte--pos">Pos</span>
+        <span>Datum</span>
+        <span>Kommen</span>
+        <span>Gehen</span>
+        <span>Pause</span>
+        <span class="spalte--zahl">Dauer</span>
+        <span class="spalte--zahl">Arbeit</span>
+        <span class="spalte--zahl">Nacht</span>
+        <span class="spalte--zahl">Sonntag</span>
+      </div>
+      <ol class="zeilen" data-zeilen>
+        {start.schichten.map((s, i) => <Zeile nr={i + 1} schicht={s} ergebnis={abrechnung.zeilen[i]} />)}
+      </ol>
+      <p class="leer druck" data-leer hidden>Keine Schicht auf dem Zettel. Lade ein Beispiel oder füge eine Zeile hinzu.</p>
+      <template data-zeile-vorlage><Zeile nr={0} /></template>
+
+      <div class="ergebnis">
+        <div class="werkzeug">
+          <fieldset class="vorlagen">
+            <legend class="feldname">Beispiel laden, bitte ankreuzen</legend>
+            {
+              VORLAGEN.map((v, i) => (
+                <label class="ankreuz">
+                  <input type="radio" name="vorlage" value={v.id} checked={i === 0} />
+                  <span class="ankreuz__kasten druck" aria-hidden="true" />
+                  <span>{v.titel}</span>
+                </label>
+              ))
+            }
+          </fieldset>
+          <button class="textknopf" type="button" data-neu>Zeile hinzufügen</button>
+        </div>
+        <div class="summenblock">
+        <dl class="summe">
+          <div class="summe__haupt"><dt>Arbeitszeit gesamt</dt><dd class="druck doppelt"><span data-summe="arbeit">{stunden(abrechnung.summe.arbeit)}</span> Std.</dd></div>
+          <div><dt>davon Nachtzeit</dt><dd class="druck"><span data-summe="nacht">{stunden(abrechnung.summe.nacht)}</span> Std.</dd></div>
+          <div><dt>davon Sonntag</dt><dd class="druck"><span data-summe="sonntag">{stunden(abrechnung.summe.sonntag)}</span> Std.</dd></div>
+          <div><dt>Verstöße</dt><dd class="druck" data-summe="verstoesse">{verstoesse}</dd></div>
+          <div><dt>Zu bestätigen</dt><dd class="druck" data-summe="entscheidungen">{entscheidungen}</dd></div>
+        </dl>
+        <ul class="befunde befunde--summe" data-summe="befunde">
+          {
+            abrechnung.summe.befunde.map((b) => (
+              <li class="befund befund--hinweis">
+                <span class="befund__art druck">HINWEIS</span>
+                <span class="befund__regel druck">{b.regel}</span>
+                <span class="befund__text druck">{b.text}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="druck summe__fehlt" data-summe="fehlt" hidden></p>
+        </div>
+        <p class="vh" role="status" data-ansage></p>
+      </div>
+      <noscript><p class="druck">Ohne JavaScript lässt sich nichts ändern. Die Zahlen oben wurden beim Bauen der Seite mit derselben Rechnung erzeugt.</p></noscript>
+    </section>
+
+    <div class="anhang">
+      <section class="nicht-abgebildet" aria-labelledby="nicht-abgebildet">
+        <h2 class="abschnitt" id="nicht-abgebildet">Nicht abgebildet</h2>
+        <p>Das hier rechnet die Seite nicht. Es steht trotzdem da, damit niemand es für geprüft hält.</p>
+        <ul class="druckliste druck">{NICHT_ABGEBILDET.map((n) => <li>{n}</li>)}</ul>
+      </section>
+      <section class="pruefung" aria-labelledby="prueflauf">
+        <h2 class="abschnitt" id="prueflauf">Prüflauf</h2>
+        {
+          pruefung ? (
+            <>
+              <p class="druck pruefung__kopf">
+                {pruefZeit} · {pruefung.numTotalTests} Tests · <span class="doppelt">{pruefung.numPassedTests} bestanden</span>
+              </p>
+              <p>
+                Diese Tests liefen beim Bauen der Seite. Die Namen stehen genauso im <a href={`${person.repo.url}/blob/master/src/core/abrechnung.test.ts`}>Testcode</a>.
+              </p>
+              <div class="pruefgruppen">
+                {[...gruppen].map(([gruppe, tests]) => (
+                  <div class="pruefgruppe">
+                    <h3 class="feldname">{gruppe}</h3>
+                    <ul class="druckliste druckliste--tests druck">
+                      {tests.map((t) => (
+                        <li>
+                          <span class={t.status === 'passed' ? 'ok' : 'fehlt'}>{t.status === 'passed' ? 'OK' : 'ROT'}</span> {t.title}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p class="druck">Kein Prüflauf im Entwicklungsmodus. `npm run build` druckt ihn.</p>
+          )
+        }
+      </section>
+    </div>
+  </section>
+
+  <hr class="falz" />
+
+  <section class="blatt blatt--mitteilung" aria-labelledby="mitteilungen">
+    <h2 class="abschnitt" id="mitteilungen">Mitteilungen</h2>
+    <div class="mitteilung">
+      <div class="brief">
+        {mitteilung.map((absatz) => <p>{absatz}</p>)}
+        <p class="brief__gruss">Viele Grüße<br />Dustin</p>
+      </div>
+      <nav class="anlagen" aria-labelledby="anlagen">
+        <h3 class="feldname" id="anlagen">Anlagen</h3>
+        <ol class="druck">
+          <li><a href="#stundenzettel">Stundenzettel und Prüflauf</a></li>
+          <li><a href="#nachweise">Nachweise: Projekte</a></li>
+          <li><a href="#werdegang">Beschäftigungszeiten</a></li>
+          <li><a href="#journal">Journal dieser Seite</a></li>
+          <li><a href={person.repo.url}>Quelltext und Tests</a></li>
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <hr class="falz" />
+
+  <section class="blatt blatt--nachweise" aria-labelledby="nachweise">
+    <h2 class="abschnitt" id="nachweise">Nachweise</h2>
+    <p class="vorbemerkung">Das sind eigene Projekte. Architektur, Produkt und Abnahme mache ich, den Code schreiben überwiegend Agenten.</p>
+    <div class="listenkopf" aria-hidden="true"><span>Projekt, Stand</span><span>Angaben</span></div>
+    <ul class="projekte">
+      {
+        projekte.map((p) => (
+          <li class="projekt druck">
+            <p class="projekt__name">
+              <span class="doppelt">{p.url ? <a href={p.url}>{p.name.toUpperCase()}</a> : p.name.toUpperCase()}</span>
+              <span>{p.status}</span>
+            </p>
+            <div class="projekt__angaben">
+              <p>{p.was}</p>
+              <p>{p.bezug}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <h2 class="abschnitt" id="werdegang">Beschäftigungszeiten</h2>
+    <div class="listenkopf" aria-hidden="true"><span>Zeitraum</span><span>Tätigkeit, Arbeitgeber</span></div>
+    <ul class="werdegang">
+      {
+        werdegang.map((s) => (
+          <li class="station druck">
+            <p>
+              {s.von} – {s.bis}
+            </p>
+            <div class="station__angaben">
+              <p class="doppelt">{s.was}</p>
+              <p>{s.wo}</p>
+              {s.details && <p class="station__details">{s.details}</p>}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <hr class="falz" />
+
+  <section class="blatt blatt--journal" aria-labelledby="journal">
+    <h2 class="abschnitt" id="journal">Journal</h2>
+    <p class="vorbemerkung">
+      So ist diese Seite entstanden, aufgeschrieben wie in einem Lohnjournal. Den Code hat ein Agent geschrieben (Claude Code), Dustin hat ihn dabei gesteuert.
+    </p>
+    <ol class="buchungen druck">
+      {
+        journal.map((e, i) => (
+          <li class={`buchung buchung--${e.buchung === 'S' ? 'storno' : 'normal'}`}>
+            <span class="buchung__lfd" aria-hidden="true">{lfd(i + 1)}</span>
+            <span class="buchung__bu">
+              <abbr title={buchung[e.buchung]}>{e.buchung}</abbr>
+              <span class="vh"> {buchung[e.buchung]}</span>
+            </span>
+            <span class="buchung__von">{e.von.toUpperCase()}</span>
+            <span class="buchung__text">{e.text}</span>
+          </li>
+        ))
+      }
+    </ol>
+    <p class="legende druck">Ü übernommen · N nachgeschärft · S storniert</p>
+  </section>
+
+  <hr class="falz" />
+
+  <section class="blatt blatt--schluss" aria-labelledby="ende">
+    <h2 class="vh" id="ende">Ende der Abrechnung</h2>
+    <div class="schluss">
+      <p class="druck schluss__zeile" aria-hidden="true">*** ENDE DER ABRECHNUNG ***</p>
+      <div class="abriss abriss--schluss">
+        <p class="abriss__schnitt" aria-hidden="true">Hier abtrennen</p>
+        <p class="feldname">Rückantwort</p>
+        <p class="druck">An {person.name}</p>
+        <p>Passt das zu euch? Dann schreibt mir.</p>
+        <a class="knopf" href={mail}>Schreibt mir</a>
+        <p class="druck"><a href={mail}>{person.email}</a></p>
+      </div>
+    </div>
+    <footer class="fuss">
+      <a href="/datenschutz/">Datenschutz</a>
+      <a href={person.repo.url}>Quelltext und Tests</a>
+      <span>Diese Seite lädt nichts von anderen Servern.</span>
+    </footer>
+  </section>
+</Seite>
+
+<script>
+  import '../scripts/abrechnung';
+</script>

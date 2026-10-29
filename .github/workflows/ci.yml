@@ -1,0 +1,99 @@
+name: CI
+
+# Lint, types, unit tests (they print onto the page), build, E2E with axe against WCAG 2.2 AAA, Lighthouse at 100 in all
+# four categories. On every pull request,
+# every push to master, and by hand. A green run on master starts the deploy (deploy.yml).
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruefen:
+    name: Lint, types, tests, build, E2E + axe
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Audit runtime dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Lint
+        run: npm run lint
+
+      # astro check reads src/data/pruefung.json through the page; the build writes it, so the tests run first.
+      - name: Unit tests and build (the test report is printed on the page)
+        run: npm run build
+
+      - name: Typecheck (astro check)
+        run: npm run check
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E + axe (WCAG 2.2 AAA, no external hosts, 320 to 1440 px)
+        run: npm run test:e2e
+
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  lighthouse:
+    name: Lighthouse CI (4 × 100, mobile and desktop)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        id: build
+        run: npm run build
+
+      - name: Lighthouse CI, mobile
+        run: npm run lhci:mobile
+
+      # Runs when the mobile gate fails too, so one red run shows both results.
+      - name: Lighthouse CI, desktop
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: npm run lhci:desktop
+
+      - name: Upload reports on failure
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lighthouse
+          path: .lighthouseci/
+          retention-days: 7

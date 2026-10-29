@@ -1,0 +1,45 @@
+# bautask.yinside.de - Apache (Netcup/Plesk). Static files, nothing runs here.
+
+ErrorDocument 404 /404.html
+Options -Indexes
+IndexIgnore *
+
+AddDefaultCharset UTF-8
+AddType font/woff2 .woff2
+AddType image/svg+xml .svg
+
+# Nothing under a dot-directory or dot-file is public, except /.well-known/ (ACME challenges).
+<If "%{REQUEST_URI} =~ m#/\.(?!well-known/)#">
+  Require all denied
+</If>
+<FilesMatch "\.(md|lock|log)$">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+  # Every script is a file from this origin; the inlined stylesheet is allowed by its sha256 hash, which the build
+  # writes into style-src of dist/.htaccess (src/integrations/csp.ts): deploy dist/.htaccess, never this file.
+  # The page fetches nothing at run time, so connect-src is 'none'.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'; upgrade-insecure-requests"
+  # HSTS comes from Plesk with the certificate; a second one here would make two headers.
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "no-referrer"
+  Header always set Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set Cross-Origin-Resource-Policy "same-origin"
+  Header always set X-Frame-Options "DENY"
+
+  <If "%{REQUEST_URI} =~ m#^/_astro/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+  <If "%{REQUEST_URI} =~ m#^/fonts/#">
+    Header set Cache-Control "public, max-age=2592000"
+  </If>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/javascript application/javascript image/svg+xml
+</IfModule>
