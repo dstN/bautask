@@ -936,6 +936,13 @@ dt {
   color: var(--vordruck);
 }
 
+/* Links stacked in a list need a target of 24 px (WCAG 2.5.8); a link inside a sentence does not. */
+.anlagen a,
+.projekt__name a {
+  display: inline-block;
+  padding-block: 0.125rem;
+}
+
 /* ---- proof --------------------------------------------------------------------------------------------------- */
 
 .vorbemerkung {
