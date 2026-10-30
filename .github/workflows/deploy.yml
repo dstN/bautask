@@ -16,7 +16,12 @@ permissions:
 
 jobs:
   deploy:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    # After CI only for code from this repository: a fork's pull request from a branch named master passes the
+    # branches filter too, and the checkout below would build its code with the secrets in reach.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
