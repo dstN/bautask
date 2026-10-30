@@ -2,7 +2,7 @@
 
 Meine Bewerbung bei [BauTask](https://bautask.de/karriere). Die Seite ist eine Arbeitszeitabrechnung auf Endlospapier, in die man Schichten eintragen kann, und sie rechnet die Fälle richtig, bei denen einfache Stundenzettel danebenliegen. Online steht sie unter [bautask.yinside.de](https://bautask.yinside.de).
 
-Gerechnet wird zum Beispiel die Zeitumstellung. Die Nacht zum 25.10.2026 hatte eine Stunde mehr, die zum 29.03.2026 eine weniger, und 02:30 gab es im Herbst zweimal und im Frühjahr gar nicht. Beim Pausenabzug nach § 4 ArbZG führt der volle Abzug manchmal unter die Grenze, ab der die Pause überhaupt vorgeschrieben ist; die Seite zieht dann nur bis zu dieser Grenze ab und sagt dazu, dass das eine Festlegung ist. Dazu kommen Ruhezeit, Höchstarbeitszeit, Nachtzeit, Sonntagsarbeit und die Rundung der Summe. Was nicht abgebildet ist, etwa Tarif und Feiertage, steht auf der Seite.
+Gerechnet wird zum Beispiel die Zeitumstellung. Die Nacht zum 25.10.2026 hatte eine Stunde mehr, die zum 29.03.2026 eine weniger, und 02:30 gab es im Herbst zweimal und im Frühjahr gar nicht. Fehlt eine Pause, die § 4 ArbZG vorschreibt, führt der volle Abzug manchmal unter die Grenze, ab der die Pause überhaupt vorgeschrieben ist; die Seite zieht dann nur bis zu dieser Grenze ab und sagt dazu, dass das eine Festlegung ist. Dazu kommen Ruhezeit, Höchstarbeitszeit, Nachtzeit, Sonntagsarbeit und die Rundung der Summe. Was nicht abgebildet ist, etwa Tarif und Feiertage, steht auf der Seite.
 
 Das Ganze ist eine Demonstration. Lohnsoftware oder Rechtsberatung ist es nicht.
 

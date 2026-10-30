@@ -99,7 +99,7 @@ test('Pause vergessen: der Abzug stoppt bei 6,00', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('radio', { name: 'Pause vergessen' }).check();
   await expect(wert(page, 1, 'arbeit')).toHaveText('6,00');
-  await expect(zeile(page, 1).locator('.befund--verstoss')).toContainText('Pause zu kurz');
+  await expect(zeile(page, 1).locator('.befund--verstoss', { hasText: 'Pause zu kurz' })).toBeVisible();
   const knopf = zeile(page, 1).locator('[data-werte]');
   await knopf.click();
   await expect(knopf).toHaveAttribute('aria-expanded', 'true');
@@ -119,7 +119,7 @@ test('ein Eingabefehler sagt, wie es richtig geht', async ({ page }) => {
   const kommen = zeile(page, 1).getByLabel(/^Kommen/);
   await kommen.fill('24:00');
   await expect(kommen).toHaveAttribute('aria-invalid', 'true');
-  await expect(zeile(page, 1).locator('[data-aus="fehler"]')).toHaveText('24:00 gibt es nicht. Nimm 00:00.');
+  await expect(zeile(page, 1).locator('[data-aus="fehler"]')).toHaveText('24:00 bitte als 00:00 eingeben.');
 });
 
 test('Zeile hinzufügen und stornieren, der Fokus bleibt auf dem Zettel', async ({ page }) => {

@@ -91,6 +91,11 @@ describe('Pausen nach § 4', () => {
     }
   });
 
+  it('mehr als sechs Stunden ganz ohne erfasste Pause sind auch ein Verstoß gegen § 4 S. 3', () => {
+    expect(regeln(zeile(berechneSchicht(schicht('20.10.2026', '07:00', '13:20'))), 'verstoss')).toContain('§ 4 S. 3 ArbZG');
+    expect(regeln(zeile(berechneSchicht(schicht('20.10.2026', '07:00', '13:20', '10'))), 'verstoss')).not.toContain('§ 4 S. 3 ArbZG');
+  });
+
   it('wer genug Pause erfasst hat, dem wird nichts abgezogen', () => {
     const z = zeile(berechneSchicht(schicht('19.10.2026', '06:00', '15:00', '45')));
     expect(z.pauseAngesetzt).toBe(45);
@@ -106,6 +111,24 @@ describe('Höchstarbeitszeit nach § 3', () => {
     const mittel = zeile(berechneSchicht(schicht('21.10.2026', '06:00', '15:30', '45')));
     expect(regeln(mittel, 'hinweis')).toContain('§ 3 S. 2 ArbZG');
     expect(regeln(mittel, 'verstoss')).toEqual([]);
+  });
+
+  it('10:40 ohne erfasste Pause sind zu lang, auch wenn der Pausenabzug auf 9:55 käme', () => {
+    const z = zeile(berechneSchicht(schicht('21.10.2026', '06:00', '16:40')));
+    expect(z.arbeit).toBe(9 * 60 + 55);
+    expect(regeln(z, 'verstoss')).toContain('§ 3 ArbZG');
+  });
+});
+
+describe('Nachtarbeit nach § 2 Abs. 4', () => {
+  const nachtarbeit = (z: Zeile): string => z.befunde.find((b) => b.regel === '§ 2 Abs. 4 ArbZG')?.text ?? '';
+
+  it('sie steht fest, wenn auch ohne die ganze Pause mehr als zwei Stunden in der Nachtzeit bleiben', () => {
+    expect(nachtarbeit(zeile(berechneSchicht(schicht('19.10.2026', '22:00', '06:00', '45'))))).toMatch(/Selbst wenn/);
+  });
+
+  it('bei 2:30 Stunden in der Nachtzeit und 30 Minuten Pause hängt sie davon ab, wann die Pause lag', () => {
+    expect(nachtarbeit(zeile(berechneSchicht(schicht('19.10.2026', '22:00', '01:30', '30'))))).toMatch(/wann die Pause lag/);
   });
 });
 

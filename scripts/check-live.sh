@@ -5,7 +5,8 @@ set -eu
 base="${1:?base url}"
 host="${base#https://}"
 fail() { echo "FAIL: $*" >&2; exit 1; }
-hdr() { curl -sSI "$@" | tr -d '\r'; }
+# GET, as a browser asks: Plesk's nginx answers GET for the pages itself and skips .htaccess, HEAD goes through Apache
+hdr() { curl -sS -D - -o /dev/null "$@" | tr -d '\r'; }
 code() { curl -s -o /dev/null -w '%{http_code}' "$@"; }
 
 echo "· headers on /"

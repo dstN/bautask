@@ -75,11 +75,16 @@ export interface Abrechnung {
 export const NICHT_ABGEBILDET: readonly string[] = [
   'Lohn und tarifliche Zuschläge, etwa nach BRTV Bau. Die Abrechnung zeigt nur Stunden.',
   'Gesetzliche Feiertage nach Bundesland. Der 31.10. ist zum Beispiel in Hamburg einer.',
-  'Wann die Pause gemacht wurde. Deshalb wird auch nicht geprüft, ob jemand mehr als sechs Stunden am Stück gearbeitet hat (§ 4 S. 3).',
-  'Der Ausgleich über sechs Monate oder einen Monat (§ 3 S. 2, § 6 Abs. 2). Jede Schicht wird für sich geprüft.',
-  'Geteilte Dienste. Jede Zeile zählt als eigener Arbeitstag.',
-  'Abweichungen, die ein Tarifvertrag oder die Aufsichtsbehörde erlaubt (§§ 7, 12, 15), und die eigenen Regeln für Jugendliche und Schwangere.',
+  'Wann und in welchen Stücken die Pause gemacht wurde. Deshalb wird nicht geprüft, ob jedes Stück mindestens 15 Minuten lang war (§ 4 S. 2). Dass jemand mehr als sechs Stunden am Stück gearbeitet hat (§ 4 S. 3), erkennt die Rechnung nur, wenn gar keine Pause erfasst ist.',
+  'Der Ausgleich über sechs Kalendermonate oder 24 Wochen, bei Nachtarbeitnehmern über einen Kalendermonat oder vier Wochen (§ 3 S. 2, § 6 Abs. 2). Jede Schicht wird für sich geprüft.',
+  'Geteilte Dienste und Arbeit bei mehreren Arbeitgebern, die zusammengezählt wird (§ 2 Abs. 1). Jede Zeile zählt als eigener Arbeitstag.',
+  'Freie Sonntage und Ersatzruhetage (§ 11), der gesetzliche Ausgleich für Nachtarbeit (§ 6 Abs. 5) und die Nachtzeit von 22 bis 5 Uhr in Bäckereien (§ 2 Abs. 3).',
+  'Abweichungen, die ein Tarifvertrag, eine Verordnung oder die Aufsichtsbehörde erlaubt (§§ 7, 12, 13, 15), kürzere Ruhezeiten in einzelnen Branchen (§ 5 Abs. 2), Notfälle (§ 14), Personen, für die das Gesetz nicht gilt (§ 18), und die eigenen Regeln für Jugendliche, Schwangere und Stillende.',
 ];
+
+/** A break filled in by the engine is an assumption: it may never have been taken. */
+const ABZUG_UNBELEGT =
+  'Das unterstellt, dass die Pause gemacht und nur nicht eingetragen wurde. Wurde durchgearbeitet, ist die ganze Zeit Arbeitszeit; ein automatischer Abzug belegt keine Pause (BAG, 12.02.2025, 5 AZR 51/24).';
 
 const STUNDE = 60 * MINUTE;
 const ELF_STUNDEN = 11 * 60;
@@ -200,8 +205,8 @@ export function berechneSchicht(s: Schicht): Ergebnis {
   const gehen = liesUhrzeit(s.gehen);
   const pause = liesPause(s.pause);
   if (!datum) fehler.push({ feld: 'datum', text: 'Datum als TT.MM.JJJJ, etwa 24.10.2026.' });
-  if (!kommen) fehler.push({ feld: 'kommen', text: s.kommen.trim() === '24:00' ? '24:00 gibt es nicht. Nimm 00:00.' : 'Uhrzeit als HH:MM, etwa 22:00.' });
-  if (!gehen) fehler.push({ feld: 'gehen', text: s.gehen.trim() === '24:00' ? '24:00 gibt es nicht. Nimm 00:00.' : 'Uhrzeit als HH:MM, etwa 06:00.' });
+  if (!kommen) fehler.push({ feld: 'kommen', text: s.kommen.trim() === '24:00' ? '24:00 bitte als 00:00 eingeben.' : 'Uhrzeit als HH:MM, etwa 22:00.' });
+  if (!gehen) fehler.push({ feld: 'gehen', text: s.gehen.trim() === '24:00' ? '24:00 bitte als 00:00 eingeben.' : 'Uhrzeit als HH:MM, etwa 06:00.' });
   if (pause === null) fehler.push({ feld: 'pause', text: 'Pause in Minuten, etwa 45.' });
   if (!datum || !kommen || !gehen || pause === null) return { ok: false, fehler };
 
@@ -291,46 +296,66 @@ export function berechneSchicht(s: Schicht): Ergebnis {
         text:
           `Abgezogen werden ${abzug} Minuten. Mit vollen ${vorgeschrieben - pause} blieben ${hm(voll)} Stunden Arbeit, und dafür ` +
           (dannNoetig === 0 ? 'wäre gar keine Pause vorgeschrieben' : `würden schon ${dannNoetig} Minuten reichen`) +
-          `. Deshalb hört der Abzug bei ${hm(dauer - angesetzt)} auf. Ob überhaupt automatisch abgezogen werden darf, muss der Betrieb festlegen.`,
+          `. Deshalb hört der Abzug bei ${hm(dauer - angesetzt)} auf. ${ABZUG_UNBELEGT}`,
       });
       herleitung.push(`Abzug ${abzug} min, bis ${hm(dauer - angesetzt)} erreicht sind`);
     } else {
       befunde.push({
         art: 'entscheidung',
         regel: 'Pausenabzug',
-        text: `Abgezogen werden die fehlenden ${abzug} Minuten. Ob überhaupt automatisch abgezogen werden darf, muss der Betrieb festlegen.`,
+        text: `Abgezogen werden die fehlenden ${abzug} Minuten. ${ABZUG_UNBELEGT}`,
       });
       herleitung.push(`Abzug der fehlenden ${abzug} min`);
     }
+  }
+  if (pause === 0 && dauer > 6 * 60) {
+    befunde.push({ art: 'verstoss', regel: '§ 4 S. 3 ArbZG', text: `${hm(dauer)} Stunden am Stück ohne erfasste Pause. Mehr als sechs sind nicht erlaubt.` });
   }
 
   const arbeit = dauer - angesetzt;
   herleitung.push(`Arbeitszeit ${hm(dauer)} − ${hm(angesetzt)} = ${hm(arbeit)} = ${stunden(arbeit)} Std.`);
 
+  // § 3 and § 2 Abs. 4 go by the time as recorded: the break the engine filled in proves nothing.
+  const erfasst = dauer - pause;
+
   // § 3: daily maximum
-  if (arbeit > 10 * 60) {
-    befunde.push({ art: 'verstoss', regel: '§ 3 ArbZG', text: `${hm(arbeit)} Stunden Arbeit. Erlaubt sind höchstens 10.` });
-  } else if (arbeit > 8 * 60) {
+  if (erfasst > 10 * 60) {
+    befunde.push({
+      art: 'verstoss',
+      regel: '§ 3 ArbZG',
+      text: `${hm(erfasst)} Stunden Arbeit. Erlaubt sind höchstens 10.` + (arbeit <= 10 * 60 ? ` Erst mit dem Pausenabzug wären es ${hm(arbeit)}, und der belegt keine Pause.` : ''),
+    });
+  } else if (erfasst > 8 * 60) {
     befunde.push({
       art: 'hinweis',
       regel: '§ 3 S. 2 ArbZG',
-      text: 'Mehr als 8 Stunden sind erlaubt, wenn der Durchschnitt über sechs Monate bei 8 bleibt. Für Nachtarbeitnehmer gilt ein Monat (§ 6 Abs. 2).',
+      text: 'Mehr als 8 bis zu 10 Stunden sind erlaubt, wenn im Durchschnitt von sechs Kalendermonaten oder 24 Wochen 8 Stunden je Werktag nicht überschritten werden. Für Nachtarbeitnehmer gilt ein Kalendermonat oder vier Wochen (§ 6 Abs. 2).',
     });
   }
 
-  // § 2: night, § 9: Sunday
+  // § 2: night, § 9: Sunday. Both count presence; whether the break fell into the night the timesheet does not say.
   const nacht = minutenIn(beginn, ende, istNacht);
   const sonntag = minutenIn(beginn, ende, istSonntag);
   if (nacht > 0) herleitung.push(`Nachtzeit 23 bis 6 Uhr (§ 2 Abs. 3): ${hm(nacht)} anwesend`);
-  if (nacht > 120) {
-    befunde.push({ art: 'hinweis', regel: '§ 2 Abs. 4 ArbZG', text: `${hm(nacht)} Stunden fallen in die Nachtzeit. Bei mehr als zwei Stunden gilt das als Nachtarbeit.` });
+  if (nacht - pause > 120) {
+    befunde.push({
+      art: 'hinweis',
+      regel: '§ 2 Abs. 4 ArbZG',
+      text: `${hm(nacht)} Stunden Anwesenheit fallen in die Nachtzeit. Selbst wenn die ganze Pause hineinfiel, bleiben mehr als zwei Stunden Arbeit, und das ist Nachtarbeit.`,
+    });
+  } else if (nacht > 120) {
+    befunde.push({
+      art: 'hinweis',
+      regel: '§ 2 Abs. 4 ArbZG',
+      text: `${hm(nacht)} Stunden Anwesenheit fallen in die Nachtzeit. Nachtarbeit ist es, wenn davon mehr als zwei Stunden Arbeit waren, und das hängt davon ab, wann die Pause lag.`,
+    });
   }
   if (sonntag > 0) {
     herleitung.push(`Sonntag 0 bis 24 Uhr (§ 9): ${hm(sonntag)} anwesend`);
     befunde.push({
       art: 'hinweis',
       regel: '§ 9 ArbZG',
-      text: `${hm(sonntag)} Stunden liegen auf dem Sonntag. Das geht nur mit einer Ausnahme nach § 10 oder § 13, und ob es die gibt, prüft diese Rechnung nicht.`,
+      text: `${hm(sonntag)} Stunden liegen auf dem Sonntag. Das ist nach § 9 Abs. 1 verboten, außer eine Ausnahme greift, etwa die Verschiebung der Sonntagsruhe im Schichtbetrieb (§ 9 Abs. 2) oder eine nach §§ 10, 13, 14 oder 15. Ob es eine gibt, prüft diese Rechnung nicht.`,
     });
   }
 

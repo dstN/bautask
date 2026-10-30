@@ -8,14 +8,14 @@ import Seite from '../layouts/Seite.astro';
 const stand = new Intl.DateTimeFormat('de-DE', { dateStyle: 'long', timeZone: 'Europe/Berlin' }).format(new Date(`${legal.lastUpdated}T12:00:00Z`));
 ---
 
-<Seite title="Datenschutz · Bewerbung Dustin Tramm" description="Was diese Seite verarbeitet: Zugriffsprotokolle des Webservers, sonst nichts.">
+<Seite title="Impressum und Datenschutz · Bewerbung Dustin Tramm" description="Wer diese Seite anbietet und was sie verarbeitet: Zugriffsprotokolle des Webservers und E-Mails, die du mir schreibst.">
   <article class="blatt blatt--lesen" aria-labelledby="titel">
-    <h1 id="titel" class="formtitel">Datenschutz</h1>
+    <h1 id="titel" class="formtitel">Impressum und Datenschutz</h1>
     <p class="lesen__lead">
-      Diese Seite setzt keine Cookies, speichert nichts in deinem Browser und lädt nichts von anderen Servern. Was der Webserver trotzdem mitschreibt, steht hier.
+      Diese Seite setzt keine Cookies und lädt nichts von anderen Servern. Was der Webserver trotzdem mitschreibt, steht hier.
     </p>
 
-    <h2 class="abschnitt">Verantwortlich</h2>
+    <h2 class="abschnitt">Anbieter und Verantwortlicher</h2>
     <address>
       {legal.name}<br />
       {legal.careOf}<br />
@@ -32,10 +32,10 @@ const stand = new Intl.DateTimeFormat('de-DE', { dateStyle: 'long', timeZone: 'E
 
     <h2 class="abschnitt">Zugriffsprotokolle</h2>
     <p>
-      Bei jedem Abruf speichert der Webserver automatisch: IP-Adresse, Zeitpunkt, aufgerufene Adresse, übertragene Datenmenge, Statuscode und den verwendeten Browser (User-Agent). Eine zuvor besuchte Seite (Referrer) übermittelt dein Browser hier nicht, weil diese Seite das abschaltet.
+      Bei jedem Abruf speichert der Webserver automatisch deine IP-Adresse, den Zeitpunkt, die Anfrage mit der aufgerufenen Adresse, den Statuscode, die übertragene Datenmenge, den verwendeten Browser (User-Agent) und, wenn dein Browser sie mitschickt, die Adresse der Seite, von der du kommst (Referrer). Ob er das beim ersten Aufruf tut, legt die Seite fest, auf der du den Link angeklickt hast; meist ist es nur deren Domain. Für alles, was du von hier aus aufrufst, auch für Links nach außen, schaltet diese Seite den Referrer ab.
     </p>
     <p>
-      Zweck ist der sichere Betrieb des Servers und die Fehlersuche. Rechtsgrundlage ist mein berechtigtes Interesse an einem stabilen, sicheren Angebot (Art. 6 Abs. 1 lit. f DSGVO). Ohne diese Angaben lässt sich die Seite nicht ausliefern.
+      Zweck ist der sichere Betrieb des Servers und die Fehlersuche. Rechtsgrundlage ist mein berechtigtes Interesse an einem stabilen, sicheren Angebot (Art. 6 Abs. 1 lit. f DSGVO). Ohne deine IP-Adresse kann der Server die Seite nicht an deinen Browser schicken.
     </p>
     <p>
       {
@@ -43,22 +43,24 @@ const stand = new Intl.DateTimeFormat('de-DE', { dateStyle: 'long', timeZone: 'E
           ? 'Speicherdauer: wird vor der Veröffentlichung aus den Servereinstellungen übernommen.'
           : `Speicherdauer: höchstens ${legal.logRetentionDays} Tage. Danach werden die Protokolle automatisch gelöscht.`
       }
+    </p>
+    <p>
       Ich setze keine Webanalyse-Software ein; die im Hosting enthaltene Statistik ist abgeschaltet. Die Protokolle schreibt der Server trotzdem, die Statistik würde sie nur auswerten.
     </p>
 
     <h2 class="abschnitt">Cookies, Speicher im Browser, Inhalte Dritter</h2>
     <p>
-      Keine Cookies, kein lokaler Speicher, keine Inhalte Dritter. Was du in den Stundenzettel tippst, rechnet dein Browser selbst; es wird nirgends hingeschickt und ist weg, sobald du die Seite schließt. Schriften und Skripte kommen von diesem Server.
+      Keine Cookies, kein lokaler Speicher, keine Inhalte Dritter. Was du in den Stundenzettel tippst, rechnet dein Browser selbst; es wird nirgends hingeschickt und ist weg, sobald du die Seite schließt. Schriften und Skripte kommen von diesem Server. Wie bei jeder Seite behält dein Browser sie eine Zeit lang in seinem Cache, und er merkt sich, dass diese Adresse nur verschlüsselt aufgerufen wird (HSTS).
     </p>
 
     <h2 class="abschnitt">E-Mail</h2>
     <p>
-      Schreibst du mir, verarbeite ich deine Adresse und deine Nachricht, um zu antworten. Geht es um diese Bewerbung, ist die Rechtsgrundlage Art. 6 Abs. 1 lit. b DSGVO (Schritte vor einem Vertrag), sonst Art. 6 Abs. 1 lit. f DSGVO. Ich lösche die Nachricht, sobald sie erledigt ist und keine gesetzliche Pflicht entgegensteht.
+      Schreibst du mir, verarbeite ich deine Adresse und deine Nachricht, um zu antworten. Rechtsgrundlage ist mein berechtigtes Interesse, Nachrichten zu beantworten und meine Bewerbung zu führen (Art. 6 Abs. 1 lit. f DSGVO). Geht es um einen Vertrag mit dir selbst, ist es Art. 6 Abs. 1 lit. b DSGVO. Ich lösche die Nachricht, sobald sie erledigt ist und keine gesetzliche Pflicht entgegensteht.
     </p>
 
     <h2 class="abschnitt">Links</h2>
     <p>
-      Die Seite verlinkt mein Profil und den Quelltext bei GitHub, mein Portfolio unter {person.portfolio.label} (GitHub Pages) und meine eigenen Projekte, die eigene Datenschutzerklärungen haben. Von dort wird nichts geladen. Erst wenn du einem Link folgst, verarbeitet der jeweilige Anbieter deine Daten nach seinen Regeln.
+      Die Seite verlinkt den Quelltext bei GitHub, mein Portfolio unter {person.portfolio.label} (GitHub Pages) und meine eigenen Projekte, die eigene Datenschutzerklärungen haben. Von dort wird nichts geladen. Erst wenn du einem Link folgst, verarbeitet der jeweilige Anbieter deine Daten nach seinen Regeln.
     </p>
 
     <h2 class="abschnitt">Deine Rechte</h2>
