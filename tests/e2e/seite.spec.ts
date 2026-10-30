@@ -95,6 +95,17 @@ test('eine geänderte Uhrzeit wird neu gerechnet und angesagt', async ({ page })
   await expect(page.locator('[data-ansage]')).toContainText('9,25 Stunden');
 });
 
+test('Gerundet auf dem Handy: der Hinweis steht in voller Breite unter der Summe', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto('/');
+  await page.getByRole('radio', { name: 'Gerundet' }).check();
+  const summe = await page.locator('.summe').boundingBox();
+  const hinweis = await page.locator('[data-summe="befunde"]').boundingBox();
+  if (!summe || !hinweis) throw new Error('Summe oder Hinweis nicht sichtbar');
+  expect(hinweis.y).toBeGreaterThanOrEqual(summe.y + summe.height);
+  expect(Math.abs(hinweis.width - summe.width)).toBeLessThan(2);
+});
+
 test('Pause vergessen: der Abzug stoppt bei 6,00', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('radio', { name: 'Pause vergessen' }).check();

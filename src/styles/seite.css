@@ -1215,7 +1215,8 @@ dt {
   }
 
   .zeile__fehler { grid-area: fehler; }
-  .befunde { grid-area: befunde; }
+  /* only in a line: the totals' list has no area of that name, and would open an extra column beside the totals */
+  .zeile .befunde { grid-area: befunde; }
   .herleitung { grid-area: herleitung; }
 
   .zeile__storno {
